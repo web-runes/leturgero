@@ -18,7 +18,8 @@
 	"scripts": {
 		"dev": "tsgo --build --force --watch",
 		"build": "tsgo --build --force",
-		"test": "node --test --test-reporter=spec \"test/**/*.test.ts\""
+		"test": "node --test --test-reporter=spec \"test/**/*.test.ts\"",
+		"start": "node ./dist/index.js"
 	},
 	"keywords": [
 		"TODO:"
@@ -35,5 +36,11 @@
 	"devDependencies": {
 		"@types/node": "^25.6.0",
 		"@typescript/native-preview": "7.0.0-dev.20260503.1"
+	},
+	"dependencies": {
+		"@clack/prompts": "^1.4.0",
+		"citty": "~0.2.2",
+		"fuse.js": "^7.3.0",
+		"unifont": "~0.7.4"
 	}
 }
