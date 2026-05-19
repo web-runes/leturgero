@@ -1,0 +1,39 @@
+{
+	"name": "@leturgero/cli",
+	"version": "0.0.0",
+	"description": "TODO:",
+	"type": "module",
+	"sideEffects": false,
+	"main": "./dist/index.js",
+	"bin": "./dist/index.js",
+	"exports": {
+		".": {
+			"default": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"types.d.ts"
+	],
+	"scripts": {
+		"dev": "tsgo --build --force --watch",
+		"build": "tsgo --build --force",
+		"test": "node --test --test-reporter=spec \"test/**/*.test.ts\""
+	},
+	"keywords": [
+		"TODO:"
+	],
+	"author": "contact@florian-lefebvre.dev",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/web-runes/leturgero.git",
+		"directory": "packages/TODO:"
+	},
+	"bugs": "https://github.com/web-runes/leturgero/issues",
+	"homepage": "https://leturgero.web-runes.dev",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^25.6.0",
+		"@typescript/native-preview": "7.0.0-dev.20260503.1"
+	}
+}
