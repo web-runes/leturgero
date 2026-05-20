@@ -1,26 +1,12 @@
-import * as clack from "@clack/prompts";
+import { intro, outro } from "@clack/prompts";
 import { defineCommand, runMain } from "citty";
-import Fuse from "fuse.js";
-import * as unifont from "unifont";
 import pkg from "../package.json" with { type: "json" };
-
-const unifontProviders = unifont.providers;
-
-type SafeExtract<T, U extends T> = Extract<T, U>;
-
-type ProviderName = keyof typeof unifontProviders;
-type ValidProviderName = SafeExtract<
-	ProviderName,
-	"adobe" | "bunny" | "fontshare" | "fontsource" | "google"
->;
-
-function handleCancel<TValue>(value: symbol | TValue): TValue {
-	if (clack.isCancel(value)) {
-		clack.cancel("Bye");
-		process.exit(0);
-	}
-	return value;
-}
+import { selectFamily } from "./core/select-family.js";
+import { ClackAutocomplete } from "./infra/clack-autocomplete.js";
+import { ClackErrorHandler } from "./infra/clack-error-handler.js";
+import { ClackSpinner } from "./infra/clack-spinner.js";
+import { FuseSearch } from "./infra/fuse-search.js";
+import { UnifontFontsManager } from "./infra/unifont-fonts-manager.js";
 
 const main = defineCommand({
 	meta: {
@@ -30,93 +16,39 @@ const main = defineCommand({
 	},
 	args: {},
 	async run() {
-		clack.intro("Welcome");
-		const providers = handleCancel(
-			await clack.multiselect<ValidProviderName>({
-				message: "Choose which providers to query",
-				options: [
-					{
-						value: "adobe",
-						label: "Adobe",
-						hint: "Kit ID required",
-					},
-					{
-						value: "bunny",
-						label: "Bunny",
-					},
-					{
-						value: "fontshare",
-						label: "Fontshare",
-					},
-					{
-						value: "fontsource",
-						label: "Fontsource",
-					},
-					{
-						value: "google",
-						label: "Google",
-					},
-				],
-				initialValues: ["fontsource"],
-			}),
-		);
+		const errorHandler = new ClackErrorHandler();
+		try {
+			const createSpinner = () => new ClackSpinner();
+			const createAutocomplete = () => new ClackAutocomplete();
+			const fontsManager = new UnifontFontsManager({
+				spinner: createSpinner(),
+			});
 
-		const initSpinner = clack.spinner();
-		initSpinner.start("Initializing font providers...");
-		const unifontInstance = await unifont.createUnifont(
-			providers.map((key) =>
-				// TODO: ask for id
-				// @ts-expect-error i know
-				unifontProviders[key](key === "adobe" ? { id: "" } : undefined),
-			) as any,
-		);
-		const familyByProvider: Record<string, Array<string>> = {};
-		for (const provider of providers) {
-			const families = (await unifontInstance.listFonts([provider])) ?? [];
-			for (const family of families) {
-				if (familyByProvider[family]) {
-					familyByProvider[family].push(provider);
-				} else {
-					familyByProvider[family] = [provider];
-				}
-			}
+			intro("Welcome!");
+
+			await fontsManager.init();
+
+			const { family, provider } = await selectFamily({
+				fontsManager,
+				autocomplete: createAutocomplete(),
+				createSearch: (items) => new FuseSearch(items, ["family"]),
+			});
+			// TODO: remove
+			console.log({ family, provider });
+
+			// TODO: retrieve suggestions
+			// TODO: if there are suggestions, ask for:
+			// TODO: weights
+			// TODO: styles
+			// TODO: subsets
+			// TODO: formats
+
+			// TODO: ask for fallbacks
+
+			outro("Thank you!");
+		} catch (error) {
+			errorHandler.onError(error);
 		}
-		initSpinner.stop("Initialization completed");
-
-		const fuse = new Fuse(
-			Object.entries(familyByProvider).map(([family, providers]) => ({
-				family,
-				providers,
-			})),
-			{
-				keys: ["family"],
-				includeScore: true,
-			},
-		);
-		const family = handleCancel(
-			await clack.autocomplete<{
-				family: string;
-				providers: Array<string>;
-			}>({
-				message: `Search for a family (${Object.keys(familyByProvider).length} available)`,
-				placeholder: "Type to search...",
-				maxItems: 10,
-				options() {
-					const candidates = fuse
-						.search(this.userInput)
-						.sort((a, b) => (a.score ?? 0) - (b.score ?? 0));
-					return candidates.map((candidate) => ({
-						value: candidate.item,
-						label: candidate.item.family,
-						hint:
-							providers.length > 1
-								? candidate.item.providers.join(", ")
-								: undefined,
-					}));
-				},
-			}),
-		);
-		console.log(family);
 	},
 });
 
