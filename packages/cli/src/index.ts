@@ -20,13 +20,13 @@ const main = defineCommand({
 		try {
 			const createSpinner = () => new ClackSpinner();
 			const createAutocomplete = () => new ClackAutocomplete();
-			const fontsManager = new UnifontFontsManager({
-				spinner: createSpinner(),
-			});
 
 			intro("Welcome!");
 
-			await fontsManager.init();
+			const initSpinner = createSpinner();
+			initSpinner.start("Initializing...");
+			const fontsManager = await UnifontFontsManager.create();
+			initSpinner.stop("Initialized");
 
 			const { family, provider } = await selectFamily({
 				fontsManager,
@@ -43,7 +43,7 @@ const main = defineCommand({
 			// TODO: subsets
 			// TODO: formats
 
-			// TODO: ask for fallbacks
+			// TODO: ask for fallbacks (may need changes upstream to retrieve the category)
 
 			outro("Thank you!");
 		} catch (error) {

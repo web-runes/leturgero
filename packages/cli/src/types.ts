@@ -6,7 +6,6 @@ export interface Spinner {
 }
 
 export interface FontsManager {
-	init: () => Promise<void>;
 	list: () => Promise<Array<{ family: string; provider: string }>>;
 }
 

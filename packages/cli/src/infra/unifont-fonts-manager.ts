@@ -1,20 +1,27 @@
 import { createUnifont, type Provider, providers, type Unifont } from "unifont";
-import type { FontsManager, Spinner } from "../types.js";
+import type { FontsManager } from "../types.js";
 
 export class UnifontFontsManager implements FontsManager {
-	#unifont!: Unifont<any>;
-	#providers!: Array<Provider<any>>;
-	#spinner: Spinner;
+	#providers: Array<Provider<any>>;
+	#unifont: Unifont<any>;
 
-	constructor({ spinner }: { spinner: Spinner }) {
-		this.#spinner = spinner;
+	private constructor({
+		providers,
+		unifont,
+	}: {
+		providers: Array<Provider<any>>;
+		unifont: Unifont<any>;
+	}) {
+		this.#providers = providers;
+		this.#unifont = unifont;
 	}
 
-	async init(): Promise<void> {
-		this.#spinner.start("Initializing...");
-		this.#providers = [providers.fontsource(), providers.fontshare()];
-		this.#unifont = await createUnifont(this.#providers as any, {});
-		this.#spinner.stop("Initialized");
+	static async create(): Promise<UnifontFontsManager> {
+		const _providers = [providers.fontsource(), providers.fontshare()];
+		return new UnifontFontsManager({
+			providers: _providers,
+			unifont: await createUnifont(_providers as any, {}),
+		});
 	}
 
 	async list(): Promise<Array<{ family: string; provider: string }>> {
