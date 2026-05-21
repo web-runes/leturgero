@@ -2,8 +2,11 @@ import { intro, outro } from "@clack/prompts";
 import { defineCommand, runMain } from "citty";
 import pkg from "../package.json" with { type: "json" };
 import { selectFamily } from "./core/select-family.js";
+import { selectProperties } from "./core/select-properties.js";
 import { ClackAutocomplete } from "./infra/clack-autocomplete.js";
 import { ClackErrorHandler } from "./infra/clack-error-handler.js";
+import { ClackLogger } from "./infra/clack-logger.js";
+import { ClackMultiselect } from "./infra/clack-multiselect.js";
 import { ClackSpinner } from "./infra/clack-spinner.js";
 import { FuseSearch } from "./infra/fuse-search.js";
 import { UnifontFontsManager } from "./infra/unifont-fonts-manager.js";
@@ -20,6 +23,8 @@ const main = defineCommand({
 		try {
 			const createSpinner = () => new ClackSpinner();
 			const createAutocomplete = () => new ClackAutocomplete();
+			const createMultiselect = () => new ClackMultiselect();
+			const logger = new ClackLogger();
 
 			intro("Welcome!");
 
@@ -28,22 +33,28 @@ const main = defineCommand({
 			const fontsManager = await UnifontFontsManager.create();
 			initSpinner.stop("Initialized");
 
-			const { family, provider } = await selectFamily({
+			const minimalFamily = await selectFamily({
 				fontsManager,
 				autocomplete: createAutocomplete(),
-				createSearch: (items) => new FuseSearch(items, ["family"]),
+				createSearch: (items) => new FuseSearch(items, ["name"]),
 			});
-			// TODO: remove
-			console.log({ family, provider });
 
-			// TODO: retrieve suggestions
-			// TODO: if there are suggestions, ask for:
-			// TODO: weights
-			// TODO: styles
-			// TODO: subsets
-			// TODO: formats
+			const suggestions = await fontsManager.getSuggestions(minimalFamily);
+
+			const properties = await selectProperties({
+				suggestions,
+				createMultiselect,
+				logger,
+			});
+
+			console.log(properties);
+
+			// TODO: resolve / download
 
 			// TODO: ask for fallbacks (may need changes upstream to retrieve the category)
+
+			// TODO: fonts dir
+			// TODO: css dir
 
 			outro("Thank you!");
 		} catch (error) {

@@ -1,5 +1,9 @@
 import { createUnifont, type Provider, providers, type Unifont } from "unifont";
-import type { FontsManager } from "../types.js";
+import type {
+	FamilySuggestions,
+	FontsManager,
+	MinimalFamily,
+} from "../types.js";
 
 export class UnifontFontsManager implements FontsManager {
 	#providers: Array<Provider<any>>;
@@ -24,7 +28,7 @@ export class UnifontFontsManager implements FontsManager {
 		});
 	}
 
-	async list(): Promise<Array<{ family: string; provider: string }>> {
+	async list(): Promise<Array<MinimalFamily>> {
 		const providerByFamily = new Map<string, string>();
 		for (const provider of this.#providers) {
 			const availableFamilies = await this.#unifont.listFonts([provider._name]);
@@ -34,9 +38,16 @@ export class UnifontFontsManager implements FontsManager {
 				providerByFamily.set(family, provider._name);
 			}
 		}
-		return [...providerByFamily.entries()].map(([family, provider]) => ({
-			family,
+		return [...providerByFamily.entries()].map(([name, provider]) => ({
+			name,
 			provider,
 		}));
+	}
+
+	// TODO: https://github.com/unjs/unifont/pull/398
+	async getSuggestions(
+		_family: MinimalFamily,
+	): Promise<FamilySuggestions | undefined> {
+		return;
 	}
 }
