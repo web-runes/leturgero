@@ -1,5 +1,12 @@
-import { createUnifont, type Provider, providers, type Unifont } from "unifont";
+import {
+	createUnifont,
+	type FontFaceData,
+	type Provider,
+	providers,
+	type Unifont,
+} from "unifont";
 import type {
+	FamilyProperties,
 	FamilySuggestions,
 	FontsManager,
 	MinimalFamily,
@@ -49,5 +56,21 @@ export class UnifontFontsManager implements FontsManager {
 		_family: MinimalFamily,
 	): Promise<FamilySuggestions | undefined> {
 		return;
+	}
+
+	async resolve(
+		family: MinimalFamily,
+		properties: FamilyProperties,
+	): Promise<{
+		fonts: Array<FontFaceData>;
+		fallbacks: Array<string> | undefined;
+	}> {
+		const result = await this.#unifont.resolveFont(family.name, properties, [
+			family.provider,
+		]);
+		return {
+			fonts: result.fonts,
+			fallbacks: result.fallbacks,
+		};
 	}
 }

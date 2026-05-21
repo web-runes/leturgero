@@ -1,6 +1,8 @@
+import type { FontStyles } from "unifont";
 import type {
 	FamilyProperties,
 	FamilySuggestions,
+	FontFormat,
 	Logger,
 	Multiselect,
 } from "../types.js";
@@ -33,7 +35,7 @@ export async function selectProperties(
 		).map((value) => ({ value })),
 	});
 
-	const styles = await options.createMultiselect().run<string>({
+	const styles = await options.createMultiselect().run<FontStyles>({
 		message: "Pick styles",
 		options: (options.suggestions?.styles ?? ["normal", "italic"]).map(
 			(value) => ({ value }),
@@ -51,7 +53,7 @@ export async function selectProperties(
 		options.logger.step("Skipping subsets");
 	}
 
-	const formats = await options.createMultiselect().run<string>({
+	const formats = await options.createMultiselect().run<FontFormat>({
 		message: "Pick formats",
 		options: (options.suggestions?.formats ?? ["woff2", "woff"]).map(
 			(value) => ({ value }),

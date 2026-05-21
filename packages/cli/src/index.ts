@@ -33,13 +33,13 @@ const main = defineCommand({
 			const fontsManager = await UnifontFontsManager.create();
 			initSpinner.stop("Initialized");
 
-			const minimalFamily = await selectFamily({
+			const family = await selectFamily({
 				fontsManager,
 				autocomplete: createAutocomplete(),
 				createSearch: (items) => new FuseSearch(items, ["name"]),
 			});
 
-			const suggestions = await fontsManager.getSuggestions(minimalFamily);
+			const suggestions = await fontsManager.getSuggestions(family);
 
 			const properties = await selectProperties({
 				suggestions,
@@ -47,9 +47,14 @@ const main = defineCommand({
 				logger,
 			});
 
-			console.log(properties);
+			const resolveSpinner = createSpinner();
+			resolveSpinner.start("Resolving font data...");
+			const result = await fontsManager.resolve(family, properties);
+			resolveSpinner.stop("Resolved");
 
-			// TODO: resolve / download
+			console.log(result);
+
+			// TODO: download
 
 			// TODO: ask for fallbacks (may need changes upstream to retrieve the category)
 

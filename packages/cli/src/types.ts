@@ -1,14 +1,17 @@
 import type { Option } from "@clack/prompts";
+import type { FontFaceData, FontStyles, ResolveFontOptions } from "unifont";
 
 export interface Spinner {
 	start: (msg: string) => void;
 	stop: (msg: string) => void;
 }
 
+export type FontFormat = ResolveFontOptions["formats"][number];
+
 export interface FamilyProperties {
 	weights: Array<string>;
-	styles: Array<string>;
-	formats: Array<string>;
+	styles: Array<FontStyles>;
+	formats: Array<FontFormat>;
 	subsets: Array<string> | undefined;
 }
 
@@ -24,6 +27,13 @@ export interface FontsManager {
 	getSuggestions: (
 		family: MinimalFamily,
 	) => Promise<FamilySuggestions | undefined>;
+	resolve: (
+		family: MinimalFamily,
+		properties: FamilyProperties,
+	) => Promise<{
+		fonts: Array<FontFaceData>;
+		fallbacks: Array<string> | undefined;
+	}>;
 }
 
 export interface ErrorHandler {
