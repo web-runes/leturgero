@@ -65,3 +65,12 @@ export interface Multiselect {
 export interface Logger {
 	step: (msg: string) => void;
 }
+
+export interface DirectoryPickerOptions {
+	message: string;
+	root: string;
+}
+
+export interface DirectoryPicker {
+	pick: (options: DirectoryPickerOptions) => Promise<string>;
+}
