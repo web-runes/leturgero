@@ -8,7 +8,7 @@ interface Options {
 	hasher: Hasher;
 	root: string;
 	fontsDir: string;
-	createProgress: (max: number) => Progress;
+	createProgress: () => Progress;
 	createCancelError: () => Error;
 	fetch: (url: string) => Promise<Buffer>;
 }
@@ -49,11 +49,7 @@ export async function proxySources(options: Options): Promise<{
 	filenameToContents: Map<string, Buffer>;
 }> {
 	const filenameToContents = new Map<string, Buffer>();
-	const prog = options.createProgress(
-		options.fonts.reduce((acc, font) => {
-			return acc + font.src.filter((src) => !("name" in src)).length;
-		}, 0),
-	);
+	const prog = options.createProgress();
 	prog.start("Downloading...");
 
 	try {

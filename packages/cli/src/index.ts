@@ -30,6 +30,7 @@ const main = defineCommand({
 	// TODO: implement flags
 	args: {},
 	// TODO: detect agent usage and abort with some kind of help
+	// may need splitting some features in several commands
 	async run() {
 		const errorHandler = new ClackErrorHandler();
 		try {
@@ -75,13 +76,21 @@ const main = defineCommand({
 			const resolved = await fontsManager.resolve(family, properties);
 			resolveSpinner.stop("Resolved");
 
-			if (resolved.fonts.length === 0) {
+			let fonts = resolved.fonts;
+
+			if (fonts.length === 0) {
 				// TODO: improve explanation
 				logger.warn("No fonts found, aborting");
 				return;
 			}
 
-			let fonts = resolved.fonts;
+			// TODO: ask for css variable, suggestion. use this in proxySources
+
+			const total = fonts.reduce((acc, font) => {
+				return acc + font.src.filter((src) => !("name" in src)).length;
+			}, 0);
+
+			// TODO: ask for confirmation with the amount of files that will be downloaded
 
 			const proxyResult = await proxySources({
 				family: family.name,
@@ -89,7 +98,7 @@ const main = defineCommand({
 				fontsDir: paths.fonts,
 				hasher,
 				root,
-				createProgress,
+				createProgress: () => createProgress(total),
 				createCancelError: () => new ClackCancelError(),
 				fetch: (url) =>
 					fetch(url)
@@ -99,20 +108,19 @@ const main = defineCommand({
 
 			fonts = proxyResult.fonts;
 
-			// TODO: ask for confirmation with the amount of files that will be downloaded
-
 			await saveToDisk({
 				filenameToContents: proxyResult.filenameToContents,
 				fontsDir: paths.fonts,
 				writeFile,
 			});
 
+			logger.step(`Saved ${total} files to disk`);
+
 			// TODO: ask for fallbacks (use resolved.fallbacks)
 
 			// TODO: emit css
 
-			// TODO: next steps (docs)
-
+			// TODO: next steps (docs, call for feedback, thanks)
 			outro("Thank you!");
 		} catch (error) {
 			errorHandler.onError(error);

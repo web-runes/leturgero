@@ -10,7 +10,7 @@ export async function selectPaths(options: Options): Promise<{
 	styles: string;
 }> {
 	const fonts = await options.directoryPicker.pick({
-		message: "Select where to download fonts (e.g. public)",
+		message: "Select where to download fonts (e.g. public/fonts)",
 		root: options.root,
 	});
 	const styles = await options.directoryPicker.pick({
