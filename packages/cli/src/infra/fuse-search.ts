@@ -18,5 +18,3 @@ export class FuseSearch<T extends Record<string, any>> implements Search<T> {
 			.map((e) => e.item);
 	}
 }
-
-new FuseSearch([{ foo: "baz" }], ["foo"]);

@@ -8,6 +8,7 @@ export class ClackMultiselect implements Multiselect {
 			message: options.message,
 			options: options.options,
 			maxItems: 10,
+			required: true,
 		});
 		if (isCancel(result)) {
 			throw new ClackCancelError();

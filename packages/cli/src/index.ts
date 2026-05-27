@@ -27,7 +27,9 @@ const main = defineCommand({
 		description: pkg.description,
 		version: pkg.version,
 	},
+	// TODO: implement flags
 	args: {},
+	// TODO: detect agent usage and abort with some kind of help
 	async run() {
 		const errorHandler = new ClackErrorHandler();
 		try {
@@ -39,6 +41,7 @@ const main = defineCommand({
 			const logger = new ClackLogger();
 			const hasher = new CryptoHasher();
 
+			// TODO: improve
 			intro("Welcome!");
 
 			const initSpinner = createSpinner();
@@ -73,6 +76,7 @@ const main = defineCommand({
 			resolveSpinner.stop("Resolved");
 
 			if (resolved.fonts.length === 0) {
+				// TODO: improve explanation
 				logger.warn("No fonts found, aborting");
 				return;
 			}
@@ -94,6 +98,8 @@ const main = defineCommand({
 			});
 
 			fonts = proxyResult.fonts;
+
+			// TODO: ask for confirmation with the amount of files that will be downloaded
 
 			await saveToDisk({
 				filenameToContents: proxyResult.filenameToContents,
