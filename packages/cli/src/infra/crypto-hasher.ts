@@ -2,9 +2,9 @@ import { createHash } from "node:crypto";
 import type { Hasher } from "../types.js";
 
 export class CryptoHasher implements Hasher {
-	hash(input: ArrayBuffer): string {
+	hash(input: Buffer): string {
 		return createHash("shake256", { outputLength: 4 })
-			.update(Buffer.from(input))
+			.update(input)
 			.digest("hex");
 	}
 }

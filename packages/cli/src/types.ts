@@ -64,6 +64,7 @@ export interface Multiselect {
 
 export interface Logger {
 	step: (msg: string) => void;
+	warn: (msg: string) => void;
 }
 
 export interface DirectoryPickerOptions {
@@ -76,7 +77,7 @@ export interface DirectoryPicker {
 }
 
 export interface Hasher {
-	hash: (input: ArrayBuffer) => string;
+	hash: (input: Buffer) => string;
 }
 
 export interface Progress {

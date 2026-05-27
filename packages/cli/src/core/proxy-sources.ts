@@ -10,7 +10,7 @@ interface Options {
 	fontsDir: string;
 	createProgress: (max: number) => Progress;
 	createCancelError: () => Error;
-	fetch: (url: string) => Promise<ArrayBuffer>;
+	fetch: (url: string) => Promise<Buffer>;
 }
 
 const FONT_TYPES = ["woff2", "woff", "otf", "ttf", "eot"] as const;
@@ -46,9 +46,9 @@ function prependForwardSlash(str: string): string {
 
 export async function proxySources(options: Options): Promise<{
 	fonts: Array<FontFaceData>;
-	filenameToContents: Map<string, ArrayBuffer>;
+	filenameToContents: Map<string, Buffer>;
 }> {
-	const filenameToContents = new Map<string, ArrayBuffer>();
+	const filenameToContents = new Map<string, Buffer>();
 	const prog = options.createProgress(
 		options.fonts.reduce((acc, font) => {
 			return acc + font.src.filter((src) => !("name" in src)).length;

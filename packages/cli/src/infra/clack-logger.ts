@@ -5,4 +5,8 @@ export class ClackLogger implements Logger {
 	step(msg: string): void {
 		log.step(msg);
 	}
+
+	warn(msg: string): void {
+		log.warn(msg);
+	}
 }

@@ -1,7 +1,9 @@
+import { writeFile } from "node:fs/promises";
 import { intro, outro } from "@clack/prompts";
 import { defineCommand, runMain } from "citty";
 import pkg from "../package.json" with { type: "json" };
 import { proxySources } from "./core/proxy-sources.js";
+import { saveToDisk } from "./core/save-to-disk.js";
 import { selectFamily } from "./core/select-family.js";
 import { selectPaths } from "./core/select-paths.js";
 import { selectProperties } from "./core/select-properties.js";
@@ -70,10 +72,14 @@ const main = defineCommand({
 			const resolved = await fontsManager.resolve(family, properties);
 			resolveSpinner.stop("Resolved");
 
+			if (resolved.fonts.length === 0) {
+				logger.warn("No fonts found, aborting");
+				return;
+			}
+
 			let fonts = resolved.fonts;
 
-			// TODO: rename
-			const temp = await proxySources({
+			const proxyResult = await proxySources({
 				family: family.name,
 				fonts,
 				fontsDir: paths.fonts,
@@ -81,18 +87,25 @@ const main = defineCommand({
 				root,
 				createProgress,
 				createCancelError: () => new ClackCancelError(),
-				fetch: (url) => fetch(url).then((res) => res.arrayBuffer()),
+				fetch: (url) =>
+					fetch(url)
+						.then((res) => res.arrayBuffer())
+						.then((e) => Buffer.from(e)),
 			});
 
-			fonts = temp.fonts;
+			fonts = proxyResult.fonts;
 
-			console.dir(fonts, { depth: null });
-
-			// TODO: copy to disk
+			await saveToDisk({
+				filenameToContents: proxyResult.filenameToContents,
+				fontsDir: paths.fonts,
+				writeFile,
+			});
 
 			// TODO: ask for fallbacks (use resolved.fallbacks)
 
 			// TODO: emit css
+
+			// TODO: next steps (docs)
 
 			outro("Thank you!");
 		} catch (error) {
