@@ -1,17 +1,21 @@
 import { intro, outro } from "@clack/prompts";
 import { defineCommand, runMain } from "citty";
 import pkg from "../package.json" with { type: "json" };
-import { download } from "./core/download.js";
-import { extractSources } from "./core/extract-sources.js";
+import { proxySources } from "./core/proxy-sources.js";
 import { selectFamily } from "./core/select-family.js";
 import { selectPaths } from "./core/select-paths.js";
 import { selectProperties } from "./core/select-properties.js";
 import { ClackAutocomplete } from "./infra/clack-autocomplete.js";
 import { ClackDirectoryPicker } from "./infra/clack-directory-picker.js";
-import { ClackErrorHandler } from "./infra/clack-error-handler.js";
+import {
+	ClackCancelError,
+	ClackErrorHandler,
+} from "./infra/clack-error-handler.js";
 import { ClackLogger } from "./infra/clack-logger.js";
 import { ClackMultiselect } from "./infra/clack-multiselect.js";
+import { ClackProgress } from "./infra/clack-progress.js";
 import { ClackSpinner } from "./infra/clack-spinner.js";
+import { CryptoHasher } from "./infra/crypto-hasher.js";
 import { FuseSearch } from "./infra/fuse-search.js";
 import { UnifontFontsManager } from "./infra/unifont-fonts-manager.js";
 
@@ -29,7 +33,9 @@ const main = defineCommand({
 			const createAutocomplete = () => new ClackAutocomplete();
 			const createMultiselect = () => new ClackMultiselect();
 			const createDirectoryPicker = () => new ClackDirectoryPicker();
+			const createProgress = (max: number) => new ClackProgress({ max });
 			const logger = new ClackLogger();
+			const hasher = new CryptoHasher();
 
 			intro("Welcome!");
 
@@ -38,9 +44,11 @@ const main = defineCommand({
 			const fontsManager = await UnifontFontsManager.create();
 			initSpinner.stop("Initialized");
 
+			const root = process.cwd();
+
 			const paths = await selectPaths({
 				directoryPicker: createDirectoryPicker(),
-				root: process.cwd(),
+				root,
 			});
 
 			const family = await selectFamily({
@@ -62,21 +70,29 @@ const main = defineCommand({
 			const resolved = await fontsManager.resolve(family, properties);
 			resolveSpinner.stop("Resolved");
 
-			// TODO: figure out what to do exactly. Needs:
-			// - download sources
-			// - generate filename from data + contents hash + format
-			// - copy to disk
-			// - proxy in data
-			// - emit css
+			let fonts = resolved.fonts;
 
-			const sources = extractSources(resolved.fonts);
-
-			await download({
-				fontsPath: paths.fonts,
-				sources,
+			// TODO: rename
+			const temp = await proxySources({
+				family: family.name,
+				fonts,
+				fontsDir: paths.fonts,
+				hasher,
+				root,
+				createProgress,
+				createCancelError: () => new ClackCancelError(),
+				fetch: (url) => fetch(url).then((res) => res.arrayBuffer()),
 			});
 
-			// TODO: ask for fallbacks (may need changes upstream to retrieve the category)
+			fonts = temp.fonts;
+
+			console.dir(fonts, { depth: null });
+
+			// TODO: copy to disk
+
+			// TODO: ask for fallbacks (use resolved.fallbacks)
+
+			// TODO: emit css
 
 			outro("Thank you!");
 		} catch (error) {

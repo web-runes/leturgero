@@ -74,3 +74,14 @@ export interface DirectoryPickerOptions {
 export interface DirectoryPicker {
 	pick: (options: DirectoryPickerOptions) => Promise<string>;
 }
+
+export interface Hasher {
+	hash: (input: ArrayBuffer) => string;
+}
+
+export interface Progress {
+	start: (msg: string) => void;
+	advance: (step: number) => void;
+	stop: (msg: string) => void;
+	error: (msg: string) => void;
+}
