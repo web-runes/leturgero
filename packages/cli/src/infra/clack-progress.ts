@@ -1,6 +1,5 @@
 import { type ProgressResult, progress } from "@clack/prompts";
 import type { Progress } from "../types.js";
-import { ClackCancelError } from "./clack-error-handler.js";
 
 export class ClackProgress implements Progress {
 	#progress: ProgressResult;
@@ -8,10 +7,10 @@ export class ClackProgress implements Progress {
 	constructor({ max }: { max: number }) {
 		this.#progress = progress({
 			max,
-			onCancel() {
-				// TODO: does not work
-				throw new ClackCancelError();
-			},
+			// https://github.com/bombshell-dev/clack/issues/83
+			// onCancel() {
+			// 	throw new ClackCancelError();
+			// },
 		});
 	}
 

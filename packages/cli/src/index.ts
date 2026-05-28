@@ -38,7 +38,8 @@ const main = defineCommand({
 	// TODO: detect agent usage and abort with some kind of help
 	// may need splitting some features in several commands
 	async run() {
-		const errorHandler = new ClackErrorHandler();
+		const outroMessage = `Thanks for using our tool! We'd love your feedback: ${styleText("blue", "https://github.com/web-runes/leturgero/issues")}`;
+		const errorHandler = new ClackErrorHandler({ outroMessage });
 		try {
 			const createSpinner = () => new ClackSpinner();
 			const createAutocomplete = () => new ClackAutocomplete();
@@ -161,9 +162,7 @@ const main = defineCommand({
 				"Next steps",
 			);
 
-			outro(
-				`Thanks for using our tool! We'd love your feedback: ${styleText("blue", "https://github.com/web-runes/leturgero/issues")}`,
-			);
+			outro(outroMessage);
 		} catch (error) {
 			errorHandler.onError(error);
 		}

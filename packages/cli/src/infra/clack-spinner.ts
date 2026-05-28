@@ -1,16 +1,15 @@
 import { type SpinnerResult, spinner } from "@clack/prompts";
 import type { Spinner } from "../types.js";
-import { ClackCancelError } from "./clack-error-handler.js";
 
 export class ClackSpinner implements Spinner {
 	#spinner: SpinnerResult;
 
 	constructor() {
 		this.#spinner = spinner({
-			onCancel() {
-				// TODO: does not work
-				throw new ClackCancelError();
-			},
+			// https://github.com/bombshell-dev/clack/issues/83
+			// onCancel() {
+			// 	throw new ClackCancelError();
+			// },
 		});
 	}
 
