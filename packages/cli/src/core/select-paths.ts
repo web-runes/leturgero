@@ -7,6 +7,8 @@ interface Options {
 
 // TODO: project detection? eg. vite, laravel, rails...
 // https://github.com/railwayapp/railpack/blob/main/core/providers
+// https://github.com/netlify/build/tree/main/packages/build-info/src/frameworks
+// https://github.com/vercel/vercel/blob/main/packages/frameworks/src/frameworks.ts
 
 export async function selectPaths(options: Options): Promise<{
 	fonts: string;

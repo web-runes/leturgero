@@ -1,7 +1,7 @@
 import { createReadStream } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { styleText } from "node:util";
-import { intro, note, outro, stream } from "@clack/prompts";
+import { confirm, intro, note, outro, stream } from "@clack/prompts";
 import { defineCommand, runMain } from "citty";
 import pkg from "../package.json" with { type: "json" };
 import { generateCss } from "./core/generate-css.js";
@@ -109,7 +109,13 @@ const main = defineCommand({
 				return acc + font.src.filter((src) => !("name" in src)).length;
 			}, 0);
 
-			// TODO: ask for confirmation with the amount of files that will be downloaded
+			if (
+				(await confirm({
+					message: `${total} file${total === 1 ? "" : "s"} will be downloaded. Do you want to continue?`,
+				})) !== true
+			) {
+				throw new ClackCancelError();
+			}
 
 			const proxyResult = await proxySources({
 				cssVariable,
@@ -135,13 +141,13 @@ const main = defineCommand({
 			});
 
 			// TODO: ask for fallbacks (use resolved.fallbacks)
+			const fallbacks = resolved.fallbacks ?? [];
 
 			// TODO: optimized fallbacks
 
 			const css = generateCss({
 				cssVariable,
-				// TODO: update
-				fallbacks: resolved.fallbacks ?? [],
+				fallbacks,
 				family: family.name,
 				fonts,
 			});
