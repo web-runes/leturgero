@@ -4,6 +4,7 @@ import { defineCommand, runMain } from "citty";
 import pkg from "../package.json" with { type: "json" };
 import { proxySources } from "./core/proxy-sources.js";
 import { saveToDisk } from "./core/save-to-disk.js";
+import { selectCssVariable } from "./core/select-css-variable.js";
 import { selectFamily } from "./core/select-family.js";
 import { selectPaths } from "./core/select-paths.js";
 import { selectProperties } from "./core/select-properties.js";
@@ -17,6 +18,7 @@ import { ClackLogger } from "./infra/clack-logger.js";
 import { ClackMultiselect } from "./infra/clack-multiselect.js";
 import { ClackProgress } from "./infra/clack-progress.js";
 import { ClackSpinner } from "./infra/clack-spinner.js";
+import { ClackText } from "./infra/clack-text.js";
 import { CryptoHasher } from "./infra/crypto-hasher.js";
 import { FuseSearch } from "./infra/fuse-search.js";
 import { UnifontFontsManager } from "./infra/unifont-fonts-manager.js";
@@ -39,6 +41,7 @@ const main = defineCommand({
 			const createMultiselect = () => new ClackMultiselect();
 			const createDirectoryPicker = () => new ClackDirectoryPicker();
 			const createProgress = (max: number) => new ClackProgress({ max });
+			const createText = () => new ClackText();
 			const logger = new ClackLogger();
 			const hasher = new CryptoHasher();
 
@@ -84,7 +87,10 @@ const main = defineCommand({
 				return;
 			}
 
-			// TODO: ask for css variable, suggestion. use this in proxySources
+			const cssVariable = await selectCssVariable({
+				family: family.name,
+				text: createText(),
+			});
 
 			const total = fonts.reduce((acc, font) => {
 				return acc + font.src.filter((src) => !("name" in src)).length;
@@ -93,7 +99,7 @@ const main = defineCommand({
 			// TODO: ask for confirmation with the amount of files that will be downloaded
 
 			const proxyResult = await proxySources({
-				family: family.name,
+				cssVariable,
 				fonts,
 				fontsDir: paths.fonts,
 				hasher,

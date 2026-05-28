@@ -1,9 +1,10 @@
 import { extname, join, relative } from "node:path";
 import type { FontFaceData, RemoteFontSource } from "unifont";
 import type { Hasher, Progress } from "../types.js";
+import { kebabize } from "../utils.js";
 
 interface Options {
-	family: string;
+	cssVariable: string;
 	fonts: Array<FontFaceData>;
 	hasher: Hasher;
 	root: string;
@@ -24,10 +25,6 @@ const FONT_FORMATS: Array<{ type: FontType; format: string }> = [
 	{ type: "ttf", format: "truetype" },
 	{ type: "eot", format: "embedded-opentype" },
 ];
-
-function kebabize(str: string): string {
-	return str.toLowerCase().replace(/\s+/g, "-");
-}
 
 function getFormat(source: RemoteFontSource) {
 	return (
@@ -66,7 +63,7 @@ export async function proxySources(options: Options): Promise<{
 						const format = getFormat(src);
 						const filename = `${kebabize(
 							[
-								options.family,
+								options.cssVariable.slice(2),
 								font.weight?.toString(),
 								font.style,
 								font.meta?.subset,

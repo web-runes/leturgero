@@ -86,3 +86,13 @@ export interface Progress {
 	stop: (msg: string) => void;
 	error: (msg: string) => void;
 }
+
+export interface TextOptions {
+	message: string;
+	initialValue?: string;
+	validate?: (value: string | undefined) => string | undefined;
+}
+
+export interface Text {
+	run: (options: TextOptions) => Promise<string>;
+}
