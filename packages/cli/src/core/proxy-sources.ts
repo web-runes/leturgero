@@ -47,7 +47,7 @@ export async function proxySources(options: Options): Promise<{
 }> {
 	const filenameToContents = new Map<string, Buffer>();
 	const prog = options.createProgress();
-	prog.start("Downloading...");
+	prog.start("Downloading font files...");
 
 	try {
 		const fonts: Array<FontFaceData> = await Promise.all(

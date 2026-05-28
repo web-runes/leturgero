@@ -15,7 +15,7 @@ export async function selectFamily(options: Options): Promise<MinimalFamily> {
 	const families = await options.fontsManager.list();
 	const search = options.createSearch(families);
 	return await options.autocomplete.run({
-		message: `Search for a family (${families.length} available):`,
+		message: `What font family would you like to use? ${families.length} ${families.length === 1 ? "is" : "are"} available.`,
 		onSearch(input) {
 			return search.search(input).map((value) => ({
 				value,

@@ -1,5 +1,7 @@
+import { createReadStream } from "node:fs";
 import { writeFile } from "node:fs/promises";
-import { intro, outro } from "@clack/prompts";
+import { styleText } from "node:util";
+import { intro, outro, stream } from "@clack/prompts";
 import { defineCommand, runMain } from "citty";
 import pkg from "../package.json" with { type: "json" };
 import { generateCss } from "./core/generate-css.js";
@@ -47,8 +49,15 @@ const main = defineCommand({
 			const logger = new ClackLogger();
 			const hasher = new CryptoHasher();
 
-			// TODO: improve
-			intro("Welcome!");
+			intro(
+				`Welcome to ${styleText("bgGreen", ` ${pkg.name} `)} ${styleText("green", `v${pkg.version}`)}!`,
+			);
+
+			await stream.message(
+				createReadStream(new URL("../logo.txt", import.meta.url), {
+					encoding: "utf-8",
+				}),
+			);
 
 			const initSpinner = createSpinner();
 			initSpinner.start("Initializing...");
@@ -77,15 +86,16 @@ const main = defineCommand({
 			});
 
 			const resolveSpinner = createSpinner();
-			resolveSpinner.start("Resolving font data...");
+			resolveSpinner.start("Retrieving font data...");
 			const resolved = await fontsManager.resolve(family, properties);
-			resolveSpinner.stop("Resolved");
+			resolveSpinner.stop("Retrieved");
 
 			let fonts = resolved.fonts;
 
 			if (fonts.length === 0) {
-				// TODO: improve explanation
-				logger.warn("No fonts found, aborting");
+				logger.warn(
+					"No fonts could be found for this combo of weights, styles, subsets and formats. Retry with another combination",
+				);
 				return;
 			}
 

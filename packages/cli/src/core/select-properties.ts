@@ -13,13 +13,17 @@ interface Options {
 	logger: Logger;
 }
 
-// TODO: update messages to tell suggestions are available
+function msg(word: string, suggestions: boolean): string {
+	let message = `What ${word} would you like to use?`;
+	if (!suggestions) message += `Some ${word} may not be available`;
+	return message;
+}
 
 export async function selectProperties(
 	options: Options,
 ): Promise<FamilyProperties> {
 	const weights = await options.createMultiselect().run<string>({
-		message: "Pick weights",
+		message: msg("weights", !!options.suggestions?.weights),
 		options: (
 			options.suggestions?.weights ?? [
 				"100",
@@ -36,7 +40,7 @@ export async function selectProperties(
 	});
 
 	const styles = await options.createMultiselect().run<FontStyles>({
-		message: "Pick styles",
+		message: msg("styles", !!options.suggestions?.styles),
 		options: (options.suggestions?.styles ?? ["normal", "italic"]).map(
 			(value) => ({ value }),
 		),
@@ -46,15 +50,17 @@ export async function selectProperties(
 
 	if (options.suggestions?.subsets) {
 		subsets = await options.createMultiselect().run<string>({
-			message: "Pick subsets",
+			message: msg("subsets", true),
 			options: options.suggestions.subsets.map((value) => ({ value })),
 		});
 	} else {
-		options.logger.step("Skipping subsets");
+		options.logger.step(
+			"No subsets are available for this font family, skipping",
+		);
 	}
 
 	const formats = await options.createMultiselect().run<FontFormat>({
-		message: "Pick formats",
+		message: msg("formats", !!options.suggestions?.formats),
 		options: (options.suggestions?.formats ?? ["woff2", "woff"]).map(
 			(value) => ({ value }),
 		),

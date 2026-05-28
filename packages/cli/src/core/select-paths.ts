@@ -12,11 +12,11 @@ export async function selectPaths(options: Options): Promise<{
 	styles: string;
 }> {
 	const fonts = await options.directoryPicker.pick({
-		message: "Select where to download fonts (e.g. public/fonts)",
+		message: "Where would you like font files to be saved? (e.g. public/fonts)",
 		root: options.root,
 	});
 	const styles = await options.directoryPicker.pick({
-		message: "Select where to output CSS (e.g. src/styles)",
+		message: "Where would you like CSS to be saved? (e.g. src/styles)",
 		root: options.root,
 	});
 
