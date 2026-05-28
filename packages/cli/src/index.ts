@@ -1,7 +1,7 @@
 import { createReadStream } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { styleText } from "node:util";
-import { intro, outro, stream } from "@clack/prompts";
+import { intro, note, outro, stream } from "@clack/prompts";
 import { defineCommand, runMain } from "citty";
 import pkg from "../package.json" with { type: "json" };
 import { generateCss } from "./core/generate-css.js";
@@ -153,8 +153,17 @@ const main = defineCommand({
 				writeFile,
 			});
 
-			// TODO: next steps (docs, call for feedback, thanks)
-			outro("Thank you!");
+			note(
+				[
+					"Now that you have font and CSS files, it is time to hook them up in your project.",
+					`Head over to the documentation to learn how: ${styleText("blue", "TODO:")}`,
+				].join("\n"),
+				"Next steps",
+			);
+
+			outro(
+				`Thanks for using our tool! We'd love your feedback: ${styleText("blue", "https://github.com/web-runes/leturgero/issues")}`,
+			);
 		} catch (error) {
 			errorHandler.onError(error);
 		}
