@@ -2,8 +2,10 @@ import { writeFile } from "node:fs/promises";
 import { intro, outro } from "@clack/prompts";
 import { defineCommand, runMain } from "citty";
 import pkg from "../package.json" with { type: "json" };
+import { generateCss } from "./core/generate-css.js";
 import { proxySources } from "./core/proxy-sources.js";
-import { saveToDisk } from "./core/save-to-disk.js";
+import { saveCssToDisk } from "./core/save-css-to-disk.js";
+import { saveFontsToDisk } from "./core/save-fonts-to-disk.js";
 import { selectCssVariable } from "./core/select-css-variable.js";
 import { selectFamily } from "./core/select-family.js";
 import { selectPaths } from "./core/select-paths.js";
@@ -114,17 +116,32 @@ const main = defineCommand({
 
 			fonts = proxyResult.fonts;
 
-			await saveToDisk({
+			await saveFontsToDisk({
 				filenameToContents: proxyResult.filenameToContents,
 				fontsDir: paths.fonts,
 				writeFile,
+				logger,
 			});
-
-			logger.step(`Saved ${total} files to disk`);
 
 			// TODO: ask for fallbacks (use resolved.fallbacks)
 
-			// TODO: emit css
+			// TODO: optimized fallbacks
+
+			const css = generateCss({
+				cssVariable,
+				// TODO: update
+				fallbacks: resolved.fallbacks ?? [],
+				family: family.name,
+				fonts,
+			});
+
+			await saveCssToDisk({
+				css,
+				cssVariable,
+				logger,
+				stylesDir: paths.styles,
+				writeFile,
+			});
 
 			// TODO: next steps (docs, call for feedback, thanks)
 			outro("Thank you!");

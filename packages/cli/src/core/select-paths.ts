@@ -5,6 +5,8 @@ interface Options {
 	root: string;
 }
 
+// TODO: project detection? eg. vite, laravel, rails...
+
 export async function selectPaths(options: Options): Promise<{
 	fonts: string;
 	styles: string;
