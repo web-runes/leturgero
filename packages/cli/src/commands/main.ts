@@ -1,8 +1,7 @@
 import { createReadStream } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { styleText } from "node:util";
-import { confirm, intro, note, outro, stream } from "@clack/prompts";
-import pkg from "../../package.json" with { type: "json" };
+import { confirm, note, outro, stream } from "@clack/prompts";
 import { generateCss } from "../core/generate-css.js";
 import { proxySources } from "../core/proxy-sources.js";
 import { saveCssToDisk } from "../core/save-css-to-disk.js";
@@ -39,10 +38,6 @@ export async function mainImpl(): Promise<void> {
 		const logger = new ClackLogger();
 		const hasher = new CryptoHasher();
 
-		intro(
-			`Welcome to ${styleText("bgGreen", ` ${pkg.name} `)} ${styleText("green", `v${pkg.version}`)}!`,
-		);
-
 		await stream.message(
 			createReadStream(new URL("../../logo.txt", import.meta.url), {
 				encoding: "utf-8",
@@ -63,9 +58,8 @@ export async function mainImpl(): Promise<void> {
 		});
 
 		const family = await selectFamily({
-			fontsManager,
 			autocomplete: createAutocomplete(),
-			createSearch: (items) => new FuseSearch(items, ["name"]),
+			search: new FuseSearch(await fontsManager.list(), ["name"]),
 		});
 
 		const suggestions = await fontsManager.getSuggestions(family);

@@ -3,12 +3,14 @@ import type { Search } from "../types.js";
 
 export class FuseSearch<T extends Record<string, any>> implements Search<T> {
 	#fuse: Fuse<T>;
+	readonly total: number;
 
 	constructor(items: Array<T>, keys: Array<keyof T>) {
 		this.#fuse = new Fuse(items, {
 			keys: keys as any,
 			includeScore: true,
 		});
+		this.total = items.length;
 	}
 
 	search(input: string): Array<T> {

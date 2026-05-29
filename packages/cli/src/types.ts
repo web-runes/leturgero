@@ -51,6 +51,7 @@ export interface Autocomplete {
 
 export interface Search<T extends Record<string, any>> {
 	search: (input: string) => Array<T>;
+	readonly total: number;
 }
 
 export interface MultiselectOptions<T> {
