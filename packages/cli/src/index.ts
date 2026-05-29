@@ -8,6 +8,8 @@ function agentMessage(lines: Array<string>): void {
 	note(lines.join("\n"), "Agent instructions");
 }
 
+const agent = isAgent();
+
 const main = defineCommand({
 	meta: {
 		name: pkg.name,
@@ -15,7 +17,7 @@ const main = defineCommand({
 		version: pkg.version,
 	},
 	setup() {
-		if (isAgent()) {
+		if (agent) {
 			updateSettings({ withGuide: false });
 		}
 		intro(
@@ -23,7 +25,7 @@ const main = defineCommand({
 		);
 	},
 	async run() {
-		if (isAgent()) {
+		if (agent) {
 			agentMessage([
 				"The main command is for human usage because it is interactive. Here is what to do:",
 				`1. Run ${pkg.name} search <family>, for example: ${pkg.name} search Inter. It will output the list of available font families`,
@@ -38,6 +40,7 @@ const main = defineCommand({
 	subCommands: {
 		search: defineCommand({
 			meta: {
+				name: "search",
 				description: "Search for available font families",
 			},
 			args: {
@@ -45,17 +48,10 @@ const main = defineCommand({
 					type: "positional",
 					description:
 						"The font family name to search for. If there's no exact match, potential matches will be returned",
-					required: false,
+					required: agent,
 				},
 			},
 			async run(ctx) {
-				if (!ctx.args.family && isAgent()) {
-					agentMessage([
-						"The family positional argument is required.",
-						`Run ${pkg.name} search --help see how it works.`,
-					]);
-					return;
-				}
 				return await import("./commands/search.js").then((mod) =>
 					mod.searchImpl(ctx.args.family),
 				);
