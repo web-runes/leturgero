@@ -7,8 +7,8 @@ interface Options {
 	cssVariable: string;
 	fonts: Array<FontFaceData>;
 	hasher: Hasher;
-	root: string;
-	fontsDir: string;
+	publicDir: string;
+	publicFontsDir: string;
 	createProgress: () => Progress;
 	createCancelError: () => Error;
 	fetch: (url: string) => Promise<Buffer>;
@@ -76,7 +76,13 @@ export async function proxySources(options: Options): Promise<{
 
 						return {
 							url: prependForwardSlash(
-								join(relative(options.root, options.fontsDir), filename),
+								join(
+									relative(
+										options.publicDir,
+										join(options.publicDir, options.publicFontsDir),
+									),
+									filename,
+								),
 							),
 							originalURL: src.url,
 							format: format.format,

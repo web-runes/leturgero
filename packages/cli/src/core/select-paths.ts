@@ -1,27 +1,34 @@
-import type { DirectoryPicker } from "../types.js";
+import type { DirectoryPicker, Text } from "../types.js";
 
 interface Options {
 	directoryPicker: DirectoryPicker;
+	text: Text;
 	root: string;
 }
 
-// TODO: project detection? eg. vite, laravel, rails...
-// https://github.com/railwayapp/railpack/blob/main/core/providers
-// https://github.com/netlify/build/tree/main/packages/build-info/src/frameworks
-// https://github.com/vercel/vercel/blob/main/packages/frameworks/src/frameworks.ts
-
 export async function selectPaths(options: Options): Promise<{
-	fonts: string;
-	styles: string;
+	publicDir: string;
+	publicFontsDir: string;
+	stylesDir: string;
 }> {
-	const fonts = await options.directoryPicker.pick({
-		message: "Where would you like font files to be saved? (e.g. public/fonts)",
+	const publicDir = await options.directoryPicker.pick({
+		message: "Where are your static assets saved? (e.g. public)",
 		root: options.root,
 	});
-	const styles = await options.directoryPicker.pick({
+	const publicFontsDir = await options.text.run({
+		message:
+			"Where would you like font files to be saved inside it? (e.g. fonts)",
+		initialValue: "./fonts",
+		validate(value) {
+			if (!value) return "Please enter a value";
+			if (value.match(/[^\x20-\x7E]/g) !== null)
+				return `Invalid non-printable character present!`;
+		},
+	});
+	const stylesDir = await options.directoryPicker.pick({
 		message: "Where would you like CSS to be saved? (e.g. src/styles)",
 		root: options.root,
 	});
 
-	return { fonts, styles };
+	return { publicDir, publicFontsDir, stylesDir };
 }

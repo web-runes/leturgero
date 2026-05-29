@@ -70,6 +70,7 @@ const main = defineCommand({
 			const paths = await selectPaths({
 				directoryPicker: createDirectoryPicker(),
 				root,
+				text: createText(),
 			});
 
 			const family = await selectFamily({
@@ -120,9 +121,9 @@ const main = defineCommand({
 			const proxyResult = await proxySources({
 				cssVariable,
 				fonts,
-				fontsDir: paths.fonts,
+				publicDir: paths.publicDir,
+				publicFontsDir: paths.publicFontsDir,
 				hasher,
-				root,
 				createProgress: () => createProgress(total),
 				createCancelError: () => new ClackCancelError(),
 				fetch: (url) =>
@@ -135,7 +136,8 @@ const main = defineCommand({
 
 			await saveFontsToDisk({
 				filenameToContents: proxyResult.filenameToContents,
-				fontsDir: paths.fonts,
+				publicDir: paths.publicDir,
+				publicFontsDir: paths.publicFontsDir,
 				writeFile,
 				logger,
 			});
@@ -156,7 +158,7 @@ const main = defineCommand({
 				css,
 				cssVariable,
 				logger,
-				stylesDir: paths.styles,
+				stylesDir: paths.stylesDir,
 				writeFile,
 			});
 
