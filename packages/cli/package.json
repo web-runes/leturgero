@@ -40,6 +40,7 @@
 	},
 	"dependencies": {
 		"@clack/prompts": "^1.4.0",
+		"am-i-vibing": "~0.4.0",
 		"citty": "~0.2.2",
 		"fuse.js": "^7.3.0",
 		"unifont": "~0.7.4"
