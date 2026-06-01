@@ -4,6 +4,8 @@ import { isAgent } from "am-i-vibing";
 import { defineCommand, runMain } from "citty";
 import pkg from "../package.json" with { type: "json" };
 
+// TODO: migrate to gunshi
+
 function agentMessage(lines: Array<string>): void {
 	note(lines.join("\n"), "Agent instructions");
 }
@@ -54,6 +56,27 @@ const main = defineCommand({
 			async run(ctx) {
 				return await import("./commands/search.js").then((mod) =>
 					mod.searchImpl(ctx.args.family),
+				);
+			},
+			cleanup() {
+				process.exit(0);
+			},
+		}),
+		details: defineCommand({
+			meta: {
+				name: "details",
+				description: "Get details for a given font family",
+			},
+			args: {
+				family: {
+					type: "positional",
+					description: "The font family name to get details from",
+					required: agent,
+				},
+			},
+			async run(ctx) {
+				return await import("./commands/details.js").then((mod) =>
+					mod.detailsImpl(ctx.args.family),
 				);
 			},
 			cleanup() {
