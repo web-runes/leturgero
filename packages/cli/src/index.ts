@@ -1,89 +1,90 @@
 import { styleText } from "node:util";
 import { intro, note, updateSettings } from "@clack/prompts";
-import { isAgent } from "am-i-vibing";
-import { defineCommand, runMain } from "citty";
+import { cli, define, plugin } from "gunshi";
+import { getAgentProfile } from "gunshi/agent";
 import pkg from "../package.json" with { type: "json" };
-
-// TODO: migrate to gunshi
 
 function agentMessage(lines: Array<string>): void {
 	note(lines.join("\n"), "Agent instructions");
 }
 
-const agent = isAgent();
+const agent = getAgentProfile().isAgent;
 
-const main = defineCommand({
-	meta: {
+if (agent) {
+	updateSettings({ withGuide: false });
+}
+
+await cli(
+	process.argv.slice(2),
+	{
+		async run() {
+			if (agent) {
+				agentMessage([
+					"The main command is for human usage because it is interactive. Here is what to do:",
+					`1. Run ${pkg.name} search <family>, for example: ${pkg.name} search Inter. It will output the list of available font families`,
+					`2. Run ${pkg.name} details <family>, for example: ${pkg.name} details Inter. It will list all available properties: weights, styles, subsets and formats`,
+					`3. Run ${pkg.name} save --help to check all available parameters. Some should be provided from step 2`,
+					`4. Run ${pkg.name} save <family> [...args]`,
+				]);
+				return;
+			}
+			return await import("./commands/main.js").then((mod) => mod.mainImpl());
+		},
+	},
+	{
 		name: pkg.name,
 		description: pkg.description,
 		version: pkg.version,
-	},
-	setup() {
-		if (agent) {
-			updateSettings({ withGuide: false });
-		}
-		intro(
-			`Welcome to ${styleText("bgGreen", ` ${pkg.name} `)} ${styleText("green", `v${pkg.version}`)}!`,
-		);
-	},
-	async run() {
-		if (agent) {
-			agentMessage([
-				"The main command is for human usage because it is interactive. Here is what to do:",
-				`1. Run ${pkg.name} search <family>, for example: ${pkg.name} search Inter. It will output the list of available font families`,
-				`2. Run ${pkg.name} details <family>, for example: ${pkg.name} details Inter. It will list all available properties: weights, styles, subsets and formats`,
-				`3. Run ${pkg.name} save --help to check all available parameters. Some should be provided from step 2`,
-				`4. Run ${pkg.name} save <family> [...args]`,
-			]);
-			return;
-		}
-		return await import("./commands/main.js").then((mod) => mod.mainImpl());
-	},
-	subCommands: {
-		search: defineCommand({
-			meta: {
+		renderHeader: null,
+		plugins: [
+			plugin({
+				id: "intro",
+				setup(ctx) {
+					ctx.decorateCommand((baseRunner) => (commandCtx) => {
+						if (!agent) {
+							intro(
+								`Welcome to ${styleText("bgGreen", ` ${pkg.name} `)} ${styleText("green", `v${pkg.version}`)}!`,
+							);
+						}
+						return baseRunner(commandCtx);
+					});
+				},
+			}),
+		],
+		subCommands: {
+			search: define({
 				name: "search",
 				description: "Search for available font families",
-			},
-			args: {
-				family: {
-					type: "positional",
-					description:
-						"The font family name to search for. If there's no exact match, potential matches will be returned",
-					required: agent,
+				args: {
+					family: {
+						type: "positional",
+						description:
+							"The font family name to search for. If there's no exact match, potential matches will be returned",
+						required: agent,
+					},
 				},
-			},
-			async run(ctx) {
-				return await import("./commands/search.js").then((mod) =>
-					mod.searchImpl(ctx.args.family),
-				);
-			},
-			cleanup() {
-				process.exit(0);
-			},
-		}),
-		details: defineCommand({
-			meta: {
+				async run(ctx) {
+					return await import("./commands/search.js").then((mod) =>
+						mod.searchImpl(ctx.args.family),
+					);
+				},
+			}),
+			details: define({
 				name: "details",
 				description: "Get details for a given font family",
-			},
-			args: {
-				family: {
-					type: "positional",
-					description: "The font family name to get details from",
-					required: agent,
+				args: {
+					family: {
+						type: "positional",
+						description: "The font family name to get details from",
+						required: agent,
+					},
 				},
-			},
-			async run(ctx) {
-				return await import("./commands/details.js").then((mod) =>
-					mod.detailsImpl(ctx.args.family),
-				);
-			},
-			cleanup() {
-				process.exit(0);
-			},
-		}),
+				async run(ctx) {
+					return await import("./commands/details.js").then((mod) =>
+						mod.detailsImpl(ctx.args.family),
+					);
+				},
+			}),
+		},
 	},
-});
-
-runMain(main);
+);

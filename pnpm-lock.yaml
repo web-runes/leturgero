@@ -23,15 +23,12 @@ importers:
       '@clack/prompts':
         specifier: ^1.4.0
         version: 1.4.0
-      am-i-vibing:
-        specifier: ~0.4.0
-        version: 0.4.0
-      citty:
-        specifier: ~0.2.2
-        version: 0.2.2
       fuse.js:
         specifier: ^7.3.0
         version: 7.3.0
+      gunshi:
+        specifier: ~0.32.0
+        version: 0.32.0
       unifont:
         specifier: ~0.7.4
         version: 0.7.4
@@ -255,10 +252,6 @@ packages:
     engines: {node: '>=16.20.0'}
     hasBin: true
 
-  am-i-vibing@0.4.0:
-    resolution: {integrity: sha512-MxT4XZL7pzLHpuvhDKdMaQHMGGkJDLluKBLsbstn+8wv9sWcFT6h+0ve9qkml95amVTZtZV83gQe2hY+ojgHLg==}
-    hasBin: true
-
   ansi-colors@4.1.3:
     resolution: {integrity: sha512-/6w/C21Pm1A7aZitlI5Ni/2J6FFQN8i1Cvz3kHABAAbw93v/NlvKdVOqz7CCWz/3iv/JplRSEEZ83XION15ovw==}
     engines: {node: '>=6'}
@@ -287,9 +280,6 @@ packages:
 
   chardet@2.1.1:
     resolution: {integrity: sha512-PsezH1rqdV9VvyNhxxOW32/d75r01NY7TQCmOqomRo15ZSOKbpTFVsfjghxo6JloQUCGnH4k1LGu0R4yCLlWQQ==}
-
-  citty@0.2.2:
-    resolution: {integrity: sha512-+6vJA3L98yv+IdfKGZHBNiGW5KHn22e/JwID0Strsz8h4S/csAu/OuICwxrg44k5MRiZHWIo8XXuJgQTriRP4w==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -375,6 +365,10 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  gunshi@0.32.0:
+    resolution: {integrity: sha512-kvRFiIkxeiLJIE0p7reKItydbY+SKIEtveeElnot2YetMTYNN5qBH4wiuCSeir68zlDvbq0wbTdNiZflt1Y+rA==}
+    engines: {node: '>= 22'}
 
   human-id@4.1.3:
     resolution: {integrity: sha512-tsYlhAYpjCKa//8rXZ9DqKEawhPoSytweBC2eNvcaDK+57RZLHGqNs3PZTQO6yekLFSuvA6AlnAfrw1uBvtb+Q==}
@@ -515,10 +509,6 @@ packages:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
     hasBin: true
-
-  process-ancestry@0.1.0:
-    resolution: {integrity: sha512-tGqJW/UnclpYASFcM6Xh8D8l/BMtaQ9+CSG0vlJSJTcdMM4lDRv4c6H0Pdcsfted+bVczdYSfk2fdukg2gQkZg==}
-    engines: {node: '>=18.0.0'}
 
   quansync@0.2.11:
     resolution: {integrity: sha512-AifT7QEbW9Nri4tAwR5M/uzpBuqfZf+zwaEM/QkzEjj7NBuFD2rBuy0K3dE+8wltbezDV7JMA0WfnCPYRSYbXA==}
@@ -902,10 +892,6 @@ snapshots:
       '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260503.1
       '@typescript/native-preview-win32-x64': 7.0.0-dev.20260503.1
 
-  am-i-vibing@0.4.0:
-    dependencies:
-      process-ancestry: 0.1.0
-
   ansi-colors@4.1.3: {}
 
   ansi-regex@5.0.1: {}
@@ -927,8 +913,6 @@ snapshots:
       fill-range: 7.1.1
 
   chardet@2.1.1: {}
-
-  citty@0.2.2: {}
 
   cross-spawn@7.0.6:
     dependencies:
@@ -1021,6 +1005,8 @@ snapshots:
       slash: 3.0.0
 
   graceful-fs@4.2.11: {}
+
+  gunshi@0.32.0: {}
 
   human-id@4.1.3: {}
 
@@ -1125,8 +1111,6 @@ snapshots:
   pify@4.0.1: {}
 
   prettier@2.8.8: {}
-
-  process-ancestry@0.1.0: {}
 
   quansync@0.2.11: {}
 
