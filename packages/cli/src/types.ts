@@ -49,8 +49,12 @@ export interface Autocomplete {
 	run: <T>(options: AutocompleteOptions<T>) => Promise<T>;
 }
 
+export interface SearchSearchOptions {
+	exact?: boolean;
+}
+
 export interface Search<T extends Record<string, any>> {
-	search: (input: string) => Array<T>;
+	search: (input: string, options?: SearchSearchOptions) => Array<T>;
 	readonly total: number;
 }
 

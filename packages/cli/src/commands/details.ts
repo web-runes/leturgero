@@ -18,7 +18,7 @@ export async function detailsImpl(_family: string | undefined): Promise<void> {
 	const search = new FuseSearch(await fontsManager.list(), ["name"]);
 
 	const family = _family
-		? search.search(_family).at(0)
+		? search.search(_family, { exact: true }).at(0)
 		: await selectFamily({
 				autocomplete: createAutocomplete(),
 				search,

@@ -4,6 +4,8 @@ import { cli, define, plugin } from "gunshi";
 import { getAgentProfile } from "gunshi/agent";
 import pkg from "../package.json" with { type: "json" };
 
+// TODO: properly abstract commands
+
 function agentMessage(lines: Array<string>): void {
 	note(lines.join("\n"), "Agent instructions");
 }
@@ -14,77 +16,81 @@ if (agent) {
 	updateSettings({ withGuide: false });
 }
 
-await cli(
-	process.argv.slice(2),
-	{
-		async run() {
-			if (agent) {
-				agentMessage([
-					"The main command is for human usage because it is interactive. Here is what to do:",
-					`1. Run ${pkg.name} search <family>, for example: ${pkg.name} search Inter. It will output the list of available font families`,
-					`2. Run ${pkg.name} details <family>, for example: ${pkg.name} details Inter. It will list all available properties: weights, styles, subsets and formats`,
-					`3. Run ${pkg.name} save --help to check all available parameters. Some should be provided from step 2`,
-					`4. Run ${pkg.name} save <family> [...args]`,
-				]);
-				return;
-			}
-			return await import("./commands/main.js").then((mod) => mod.mainImpl());
+const main = define({
+	async run() {
+		if (agent) {
+			agentMessage([
+				"The main command is for human usage because it is interactive. Here is what to do:",
+				`1. Run ${pkg.name} search <family>, for example: ${pkg.name} search Inter. It will output the list of available font families`,
+				`2. Run ${pkg.name} details <family>, for example: ${pkg.name} details Inter. It will list all available properties: weights, styles, subsets and formats`,
+				`3. Run ${pkg.name} save --help to check all available parameters. Some should be provided from step 2`,
+				`4. Run ${pkg.name} save <family> [...args]`,
+			]);
+			return;
+		}
+		return await import("./commands/main.js").then((mod) => mod.mainImpl());
+	},
+});
+
+const search = define({
+	name: "search",
+	description: "Search for available font families",
+	args: {
+		family: {
+			type: "positional",
+			description:
+				"The font family name to search for. If there's no exact match, potential matches will be returned",
+			required: agent,
+			multiple: true,
 		},
 	},
-	{
-		name: pkg.name,
-		description: pkg.description,
-		version: pkg.version,
-		renderHeader: null,
-		plugins: [
-			plugin({
-				id: "intro",
-				setup(ctx) {
-					ctx.decorateCommand((baseRunner) => (commandCtx) => {
-						if (!agent) {
-							intro(
-								`Welcome to ${styleText("bgGreen", ` ${pkg.name} `)} ${styleText("green", `v${pkg.version}`)}!`,
-							);
-						}
-						return baseRunner(commandCtx);
-					});
-				},
-			}),
-		],
-		subCommands: {
-			search: define({
-				name: "search",
-				description: "Search for available font families",
-				args: {
-					family: {
-						type: "positional",
-						description:
-							"The font family name to search for. If there's no exact match, potential matches will be returned",
-						required: agent,
-					},
-				},
-				async run(ctx) {
-					return await import("./commands/search.js").then((mod) =>
-						mod.searchImpl(ctx.args.family),
-					);
-				},
-			}),
-			details: define({
-				name: "details",
-				description: "Get details for a given font family",
-				args: {
-					family: {
-						type: "positional",
-						description: "The font family name to get details from",
-						required: agent,
-					},
-				},
-				async run(ctx) {
-					return await import("./commands/details.js").then((mod) =>
-						mod.detailsImpl(ctx.args.family),
-					);
-				},
-			}),
+	async run(ctx) {
+		return await import("./commands/search.js").then((mod) =>
+			mod.searchImpl(ctx.values.family?.join("")),
+		);
+	},
+});
+
+const details = define({
+	name: "details",
+	description: "Get details for a given font family",
+	args: {
+		family: {
+			type: "positional",
+			description: "The font family name to get details from",
+			required: agent,
+			multiple: true,
 		},
 	},
-);
+	async run(ctx) {
+		return await import("./commands/details.js").then((mod) =>
+			mod.detailsImpl(ctx.values.family?.join("")),
+		);
+	},
+});
+
+await cli(process.argv.slice(2), main, {
+	name: pkg.name,
+	description: pkg.description,
+	version: pkg.version,
+	renderHeader: null,
+	plugins: [
+		plugin({
+			id: "intro",
+			setup(ctx) {
+				ctx.decorateCommand((baseRunner) => (commandCtx) => {
+					if (!agent) {
+						intro(
+							`Welcome to ${styleText("bgGreen", ` ${pkg.name} `)} ${styleText("green", `v${pkg.version}`)}!`,
+						);
+					}
+					return baseRunner(commandCtx);
+				});
+			},
+		}),
+	],
+	subCommands: {
+		search,
+		details,
+	},
+});
