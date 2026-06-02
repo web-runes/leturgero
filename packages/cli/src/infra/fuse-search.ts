@@ -14,6 +14,7 @@ export class FuseSearch<T extends Record<string, any>> implements Search<T> {
 		this.total = items.length;
 	}
 
+	// TODO: remove exact search in favor of searching the items directly in the consuming code
 	search(input: string, { exact = false }: SearchSearchOptions = {}): Array<T> {
 		const sorted = this.#fuse
 			.search(input)

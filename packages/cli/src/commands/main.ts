@@ -26,6 +26,7 @@ import { FuseSearch } from "../infra/fuse-search.js";
 import { UnifontFontsManager } from "../infra/unifont-fonts-manager.js";
 
 // TODO: consider removing main command in favor of named command, "install"?
+// TODO: consider having only one main command
 
 export async function mainImpl(): Promise<void> {
 	const outroMessage = `Thanks for using our tool! We'd love your feedback: ${styleText("blue", "https://github.com/web-runes/leturgero/issues")}`;

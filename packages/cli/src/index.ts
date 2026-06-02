@@ -5,6 +5,9 @@ import { getAgentProfile } from "gunshi/agent";
 import pkg from "../package.json" with { type: "json" };
 
 // TODO: properly abstract commands
+// TODO: test flow as human
+// TODO: test flow as agent
+// TODO: review all texts again
 
 function agentMessage(lines: Array<string>): void {
 	note(lines.join("\n"), "Agent instructions");
@@ -46,7 +49,7 @@ const search = define({
 	},
 	async run(ctx) {
 		return await import("./commands/search.js").then((mod) =>
-			mod.searchImpl(ctx.values.family?.join("")),
+			mod.searchImpl(ctx.values.family?.join(" ")),
 		);
 	},
 });
@@ -64,8 +67,26 @@ const details = define({
 	},
 	async run(ctx) {
 		return await import("./commands/details.js").then((mod) =>
-			mod.detailsImpl(ctx.values.family?.join("")),
+			mod.detailsImpl(ctx.values.family?.join(" ")),
 		);
+	},
+});
+
+const save = define({
+	name: "Save",
+	description: "Save font family files to disk.",
+	args: {
+		family: {
+			type: "positional",
+			description: "The font family name to get data from",
+			required: true,
+			multiple: true,
+		},
+		// What validations to have?
+		publicDir: {
+			type: 'string',
+
+		}
 	},
 });
 
@@ -92,5 +113,6 @@ await cli(process.argv.slice(2), main, {
 	subCommands: {
 		search,
 		details,
+		save,
 	},
 });
