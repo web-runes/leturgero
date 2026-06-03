@@ -24,7 +24,7 @@ interface Options {
 	cssVariable: string | undefined;
 }
 
-export async function saveImpl(options: Options): Promise<void> {
+export async function saveImpl(_options: Options): Promise<void> {
 	// TODO: find exact family or abort
 	// TODO: paths
 	// TODO: cssVariable

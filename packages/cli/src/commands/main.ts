@@ -1,7 +1,8 @@
 import { createReadStream } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { styleText } from "node:util";
-import { confirm, note, outro, stream } from "@clack/prompts";
+import { confirm, intro, note, outro, stream } from "@clack/prompts";
+import type { FontStyles } from "unifont";
 import { generateCss } from "../core/generate-css.js";
 import { proxySources } from "../core/proxy-sources.js";
 import { saveCssToDisk } from "../core/save-css-to-disk.js";
@@ -24,11 +25,34 @@ import { ClackText } from "../infra/clack-text.js";
 import { CryptoHasher } from "../infra/crypto-hasher.js";
 import { FuseSearch } from "../infra/fuse-search.js";
 import { UnifontFontsManager } from "../infra/unifont-fonts-manager.js";
+import type { FontFormat } from "../types.js";
 
 // TODO: consider removing main command in favor of named command, "install"?
 // TODO: consider having only one main command
 
-export async function mainImpl(): Promise<void> {
+interface Options {
+	isAgent: boolean;
+	pkg: {
+		name: string;
+		version: string;
+	};
+	// TODO: reuse types?
+	args: {
+		publicDir: string | undefined;
+		publicFontsDir: string | undefined;
+		stylesDir: string | undefined;
+		fontFamily: string | undefined;
+		weights: Array<string> | undefined;
+		styles: Array<FontStyles> | undefined;
+		formats: Array<FontFormat> | undefined;
+		subsets: Array<string> | undefined;
+		cssVariable: string | undefined;
+	};
+}
+
+// TODO: maybe different abstractions can be passed if it's an agent or not?
+
+export async function mainImpl(options: Options): Promise<void> {
 	const outroMessage = `Thanks for using our tool! We'd love your feedback: ${styleText("blue", "https://github.com/web-runes/leturgero/issues")}`;
 	const errorHandler = new ClackErrorHandler({ outroMessage });
 	try {
@@ -41,11 +65,16 @@ export async function mainImpl(): Promise<void> {
 		const logger = new ClackLogger();
 		const hasher = new CryptoHasher();
 
-		await stream.message(
-			createReadStream(new URL("../../logo.txt", import.meta.url), {
-				encoding: "utf-8",
-			}),
-		);
+		if (!options.isAgent) {
+			intro(
+				`Welcome to ${styleText("bgGreen", ` ${options.pkg.name} `)} ${styleText("green", `v${options.pkg.version}`)}!`,
+			);
+			await stream.message(
+				createReadStream(new URL("../../logo.txt", import.meta.url), {
+					encoding: "utf-8",
+				}),
+			);
+		}
 
 		const initSpinner = createSpinner();
 		initSpinner.start("Initializing...");
@@ -58,11 +87,17 @@ export async function mainImpl(): Promise<void> {
 			directoryPicker: createDirectoryPicker(),
 			root,
 			text: createText(),
+			isAgent: options.isAgent,
+			args: options.args,
+			logger,
 		});
 
 		const family = await selectFamily({
 			autocomplete: createAutocomplete(),
 			search: new FuseSearch(await fontsManager.list(), ["name"]),
+			args: options.args,
+			isAgent: options.isAgent,
+			logger,
 		});
 
 		const suggestions = await fontsManager.getSuggestions(family);
@@ -71,6 +106,8 @@ export async function mainImpl(): Promise<void> {
 			suggestions,
 			createMultiselect,
 			logger,
+			isAgent: options.isAgent,
+			args: options.args,
 		});
 
 		const resolveSpinner = createSpinner();
@@ -90,6 +127,9 @@ export async function mainImpl(): Promise<void> {
 		const cssVariable = await selectCssVariable({
 			family: family.name,
 			text: createText(),
+			logger,
+			isAgent: options.isAgent,
+			args: options.args,
 		});
 
 		const total = fonts.reduce((acc, font) => {
@@ -97,6 +137,7 @@ export async function mainImpl(): Promise<void> {
 		}, 0);
 
 		if (
+			!options.isAgent &&
 			(await confirm({
 				message: `${total} file${total === 1 ? "" : "s"} will be downloaded. Do you want to continue?`,
 			})) !== true
