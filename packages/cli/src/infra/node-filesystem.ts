@@ -1,4 +1,4 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import type { Filesystem } from "../types.js";
 
 export class NodeFilesystem implements Filesystem {
@@ -7,6 +7,6 @@ export class NodeFilesystem implements Filesystem {
 	}
 
 	async writeFile(path: string, contents: Buffer): Promise<void> {
-		await this.writeFile(path, contents);
+		await writeFile(path, contents);
 	}
 }

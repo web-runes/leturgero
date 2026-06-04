@@ -1,6 +1,6 @@
 import { createReadStream } from "node:fs";
 import { styleText } from "node:util";
-import { intro, note, outro, stream, updateSettings } from "@clack/prompts";
+import { intro, note, outro, stream } from "@clack/prompts";
 import { cli, define } from "gunshi";
 import { getAgentProfile } from "gunshi/agent";
 import pkg from "../package.json" with { type: "json" };
@@ -16,11 +16,6 @@ import { args as selectPropertiesArgs } from "./core/select-properties.js";
 // TODO: tests
 
 const { isAgent } = getAgentProfile();
-
-// TODO: not needed if there's a json logger for agents
-if (isAgent) {
-	updateSettings({ withGuide: false });
-}
 
 const main = define({
 	args: toGunshiArgs({

@@ -65,9 +65,6 @@ interface Options {
 	filesystem: Filesystem;
 }
 
-// TODO: maybe different abstractions can be passed if it's an agent or not? eg. noop
-// TODO: json logger for agents?
-
 export async function mainImpl(options: Options): Promise<void> {
 	try {
 		await options.intro();
