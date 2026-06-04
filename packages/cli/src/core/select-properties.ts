@@ -18,25 +18,26 @@ export const args = {
 	weights: {
 		cliName: "weights",
 		type: "custom",
-		description: "TODO:",
+		description: "Weights to download, comma-separated",
 		parse: parseArray,
 	},
 	styles: {
 		cliName: "styles",
 		type: "custom",
-		description: "TODO:",
+		description: "Styles to download, comma-separated",
 		parse: parseArray,
 	},
 	formats: {
 		cliName: "formats",
 		type: "custom",
-		description: "TODO:",
+		description: "Formats to download, comma-separated",
 		parse: parseArray,
 	},
 	subsets: {
 		cliName: "subsets",
 		type: "custom",
-		description: "TODO:",
+		description:
+			"Subsets to download, comma-separated. Not all fonts support subsets",
 		parse: parseArray,
 	},
 } as const satisfies ArgsConstraint;
@@ -111,6 +112,7 @@ function shortCircuitInvalid<T extends string>(
 	return res.valid;
 }
 
+// TODO: should it be checked against suggestions?
 export function validateSelectPropertiesArgs(
 	values: InferArgs<typeof args>,
 ): Options["args"] {

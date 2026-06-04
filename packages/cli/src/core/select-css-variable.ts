@@ -11,7 +11,8 @@ export const args = {
 	cssVariable: {
 		cliName: "css-variable",
 		type: "string",
-		description: "TODO:",
+		description:
+			"CSS variable name to use in the emitted CSS file. Must start with -- and be a valid CSS ident: it can only contain letters, digits, hyphens and underscores",
 	},
 } as const satisfies ArgsConstraint;
 

@@ -1,6 +1,4 @@
-// TODO: need to be a class
-import { lstat } from "node:fs/promises";
-import type { DirectoryPicker, Logger, Text } from "../types.js";
+import type { DirectoryPicker, Filesystem, Logger, Text } from "../types.js";
 import {
 	type ArgsConstraint,
 	argsToHelpMessage,
@@ -8,21 +6,23 @@ import {
 } from "./args.js";
 import { ShortCircuit } from "./short-circuit.js";
 
+const PUBLIC_DIR_CLI_NAME = "public-dir";
+
 export const args = {
 	publicDir: {
-		cliName: "public-dir",
+		cliName: PUBLIC_DIR_CLI_NAME,
 		type: "string",
-		description: "TODO:",
+		description: "Absolute path to the directory where static assets are saved",
 	},
 	publicFontsDir: {
 		cliName: "public-fonts-dir",
 		type: "string",
-		description: "TODO:",
+		description: `Path relative to --${PUBLIC_DIR_CLI_NAME} where to save font files. Usually ./fonts`,
 	},
 	stylesDir: {
 		cliName: "styles-dir",
 		type: "string",
-		description: "TODO:",
+		description: "Absolute path to the directory where CSS files are saved",
 	},
 } as const satisfies ArgsConstraint;
 
@@ -35,34 +35,23 @@ interface Options {
 	logger: Logger;
 }
 
-async function validateDirectory(
-	value: string | undefined,
-): Promise<string | undefined> {
-	if (!value) return;
-	try {
-		const stats = await lstat(value);
-		if (!stats.isDirectory()) {
-			return "Not a directory";
-		}
-	} catch {
-		return "Path does not exist";
-	}
-}
-
 function validateFontsDir(value: string | undefined): string | undefined {
 	if (!value) return;
 	if (value.match(/[^\x20-\x7E]/g) !== null)
 		return "Invalid non-printable character present!";
 }
 
-export async function validateSelectPathsArgs(values: Options["args"]) {
-	const publicDirError = await validateDirectory(values.publicDir);
+export async function validateSelectPathsArgs(
+	values: Options["args"],
+	options: { filesystem: Filesystem },
+) {
+	const publicDirError = await options.filesystem.isDirectory(values.publicDir);
 	if (publicDirError)
 		throw new ShortCircuit({ type: "error", error: publicDirError });
 	const publicFontsDirError = validateFontsDir(values.publicDir);
 	if (publicFontsDirError)
 		throw new ShortCircuit({ type: "error", error: publicFontsDirError });
-	const stylesDirError = await validateDirectory(values.stylesDir);
+	const stylesDirError = await options.filesystem.isDirectory(values.stylesDir);
 	if (stylesDirError)
 		throw new ShortCircuit({ type: "error", error: stylesDirError });
 

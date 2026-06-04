@@ -10,10 +10,28 @@ import { args as selectFamilyArgs } from "./core/select-family.js";
 import { args as selectPathsArgs } from "./core/select-paths.js";
 import { args as selectPropertiesArgs } from "./core/select-properties.js";
 
-// TODO: test flow as human
 // TODO: test flow as agent
 // TODO: review all texts again
 // TODO: tests
+
+const EXAMPLES: Record<string, string> = {
+	"Using npm": `npx ${pkg.name}`,
+	"Using pnpm": `pnpx ${pkg.name}`,
+	"Using yarn": `yarn dlx ${pkg.name}`,
+	"With a few flags": `${pkg.name} --${selectPathsArgs.publicDir.cliName} "Inter Tight" --${selectPropertiesArgs.weights.cliName} "400,500"`,
+	"With all flags": [
+		pkg.name,
+		`--${selectPathsArgs.publicDir.cliName} /foo/bar/public/`,
+		`--${selectPathsArgs.publicFontsDir.cliName} ./fonts`,
+		`--${selectPathsArgs.stylesDir.cliName} /foo/bar/src/styles/`,
+		`--${selectFamilyArgs.fontFamily.cliName} "Inter"`,
+		`--${selectPropertiesArgs.weights.cliName} "300,400"`,
+		`--${selectPropertiesArgs.styles.cliName} "normal,italic"`,
+		`--${selectPropertiesArgs.formats.cliName} "woff2,woff"`,
+		`--${selectPropertiesArgs.subsets.cliName} latin`,
+		`--${selectCssVariableArgs.cssVariable.cliName} "--font-inter"`,
+	].join(" "),
+};
 
 const { isAgent } = getAgentProfile();
 
@@ -24,7 +42,9 @@ const main = define({
 		...selectPropertiesArgs,
 		...selectCssVariableArgs,
 	}),
-	examples: "TODO:",
+	examples: Object.entries(EXAMPLES)
+		.map(([k, v]) => `# ${k}\n$ ${v}`)
+		.join("\n\n"),
 	async run(ctx) {
 		const [
 			{ mainImpl },

@@ -6,11 +6,13 @@ import {
 } from "./args.js";
 import { ShortCircuit } from "./short-circuit.js";
 
+const MAX = 10;
+
 export const args = {
 	fontFamily: {
 		cliName: "font-family",
 		type: "string",
-		description: "TODO:",
+		description: `The font family to use. If the exact provided value cannot be found, ${MAX} potential matches will be returned`,
 	},
 } as const satisfies ArgsConstraint;
 
@@ -21,8 +23,6 @@ interface Options {
 	args: InferArgs<typeof args>;
 	logger: Logger;
 }
-
-const MAX = 10;
 
 export async function selectFamily(options: Options): Promise<MinimalFamily> {
 	if (options.isAgent && !options.args.fontFamily) {

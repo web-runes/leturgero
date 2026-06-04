@@ -106,4 +106,5 @@ export interface Confirm {
 export interface Filesystem {
 	mkdir: (path: string) => Promise<void>;
 	writeFile: (path: string, contents: Buffer) => Promise<void>;
+	isDirectory: (path: string | undefined) => Promise<string | undefined>;
 }
