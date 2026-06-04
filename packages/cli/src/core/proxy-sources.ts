@@ -2,6 +2,7 @@ import { extname, join, relative } from "node:path";
 import type { FontFaceData, RemoteFontSource } from "unifont";
 import type { Hasher, Progress } from "../types.js";
 import { kebabize } from "../utils.js";
+import { ShortCircuit } from "./short-circuit.js";
 
 interface Options {
 	cssVariable: string;
@@ -10,7 +11,6 @@ interface Options {
 	publicDir: string;
 	publicFontsDir: string;
 	createProgress: () => Progress;
-	createCancelError: () => Error;
 	fetch: (url: string) => Promise<Buffer>;
 }
 
@@ -101,6 +101,6 @@ export async function proxySources(options: Options): Promise<{
 		};
 	} catch {
 		prog.error("An error occured while downloading, aborting");
-		throw options.createCancelError();
+		throw new ShortCircuit({ type: "cancel" });
 	}
 }

@@ -5,6 +5,7 @@ import {
 	argsToHelpMessage,
 	type InferArgs,
 } from "./args.js";
+import { ShortCircuit } from "./short-circuit.js";
 
 export const args = {
 	cssVariable: {
@@ -37,7 +38,7 @@ function validate(value: string | undefined): string | undefined {
 export async function selectCssVariable(options: Options): Promise<string> {
 	if (options.isAgent && !options.args.cssVariable) {
 		options.logger.warn(argsToHelpMessage(args));
-		process.exit(0);
+		throw new ShortCircuit({ type: "silent" });
 	}
 
 	return (

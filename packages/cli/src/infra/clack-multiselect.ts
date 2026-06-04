@@ -1,6 +1,6 @@
 import { isCancel, multiselect } from "@clack/prompts";
+import { ShortCircuit } from "../core/short-circuit.js";
 import type { Multiselect, MultiselectOptions } from "../types.js";
-import { ClackCancelError } from "./clack-error-handler.js";
 
 export class ClackMultiselect implements Multiselect {
 	async run<T>(options: MultiselectOptions<T>): Promise<Array<T>> {
@@ -11,7 +11,7 @@ export class ClackMultiselect implements Multiselect {
 			required: true,
 		});
 		if (isCancel(result)) {
-			throw new ClackCancelError();
+			throw new ShortCircuit({ type: "cancel" });
 		}
 		return result;
 	}

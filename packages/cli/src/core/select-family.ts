@@ -4,6 +4,7 @@ import {
 	argsToHelpMessage,
 	type InferArgs,
 } from "./args.js";
+import { ShortCircuit } from "./short-circuit.js";
 
 export const args = {
 	fontFamily: {
@@ -23,12 +24,10 @@ interface Options {
 
 const MAX = 10;
 
-// TODO: figure out another pattern than process.exit
-
 export async function selectFamily(options: Options): Promise<MinimalFamily> {
 	if (options.isAgent && !options.args.fontFamily) {
 		options.logger.warn(argsToHelpMessage(args));
-		process.exit(0);
+		throw new ShortCircuit({ type: "silent" });
 	}
 
 	if (options.args.fontFamily) {
@@ -47,7 +46,7 @@ export async function selectFamily(options: Options): Promise<MinimalFamily> {
 		options.logger.step(
 			`Available families (top ${MAX} matches): ${items.map((e) => e.name).join(", ")}`,
 		);
-		process.exit(0);
+		throw new ShortCircuit({ type: "silent" });
 	}
 
 	return await options.autocomplete.run({

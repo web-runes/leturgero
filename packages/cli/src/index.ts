@@ -13,9 +13,9 @@ import { args as selectPropertiesArgs } from "./core/select-properties.js";
 // TODO: test flow as agent
 // TODO: review all texts again
 
-const agent = getAgentProfile().isAgent;
+const { isAgent } = getAgentProfile();
 
-if (agent) {
+if (isAgent) {
 	updateSettings({ withGuide: false });
 }
 
@@ -30,7 +30,7 @@ const main = define({
 	async run(ctx) {
 		return await import("./commands/main.js").then((mod) =>
 			mod.mainImpl({
-				isAgent: agent,
+				isAgent,
 				pkg,
 				args: normalizeGunshiArgs(
 					{

@@ -1,7 +1,6 @@
 import { cancel } from "@clack/prompts";
+import { ShortCircuit } from "../core/short-circuit.js";
 import type { ErrorHandler } from "../types.js";
-
-export class ClackCancelError extends Error {}
 
 export class ClackErrorHandler implements ErrorHandler {
 	#outroMessage: string;
@@ -11,9 +10,24 @@ export class ClackErrorHandler implements ErrorHandler {
 	}
 
 	onError(error: unknown): void {
-		if (error instanceof ClackCancelError) {
-			cancel(this.#outroMessage);
-			process.exit(130);
+		if (error instanceof ShortCircuit) {
+			const { data } = error;
+			switch (data.type) {
+				case "cancel": {
+					cancel(this.#outroMessage);
+					process.exit(130);
+					break;
+				}
+				case "error": {
+					cancel(data.error);
+					process.exit(1);
+					break;
+				}
+				case "silent": {
+					process.exit(0);
+					break;
+				}
+			}
 		}
 
 		const message =

@@ -9,7 +9,7 @@ export class ClackProgress implements Progress {
 			max,
 			// https://github.com/bombshell-dev/clack/issues/83
 			// onCancel() {
-			// 	throw new ClackCancelError();
+			// 	throw new ShortCircuit({ type: "cancel" });
 			// },
 		});
 	}

@@ -5,6 +5,7 @@ import {
 	argsToHelpMessage,
 	type InferArgs,
 } from "./args.js";
+import { ShortCircuit } from "./short-circuit.js";
 
 export const args = {
 	publicDir: {
@@ -68,7 +69,7 @@ export async function selectPaths(options: Options): Promise<{
 			!options.args.stylesDir)
 	) {
 		options.logger.warn(argsToHelpMessage(args));
-		process.exit(0);
+		throw new ShortCircuit({ type: "silent" });
 	}
 
 	const publicDir =

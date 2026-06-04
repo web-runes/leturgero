@@ -1,6 +1,6 @@
 import { isCancel, path } from "@clack/prompts";
+import { ShortCircuit } from "../core/short-circuit.js";
 import type { DirectoryPicker, DirectoryPickerOptions } from "../types.js";
-import { ClackCancelError } from "./clack-error-handler.js";
 
 export class ClackDirectoryPicker implements DirectoryPicker {
 	async pick(options: DirectoryPickerOptions): Promise<string> {
@@ -10,7 +10,7 @@ export class ClackDirectoryPicker implements DirectoryPicker {
 			directory: true,
 		});
 		if (isCancel(result)) {
-			throw new ClackCancelError();
+			throw new ShortCircuit({ type: "cancel" });
 		}
 		return result;
 	}

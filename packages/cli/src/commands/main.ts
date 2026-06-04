@@ -23,12 +23,10 @@ import {
 	selectProperties,
 	type args as selectPropertiesArgs,
 } from "../core/select-properties.js";
+import { ShortCircuit } from "../core/short-circuit.js";
 import { ClackAutocomplete } from "../infra/clack-autocomplete.js";
 import { ClackDirectoryPicker } from "../infra/clack-directory-picker.js";
-import {
-	ClackCancelError,
-	ClackErrorHandler,
-} from "../infra/clack-error-handler.js";
+import { ClackErrorHandler } from "../infra/clack-error-handler.js";
 import { ClackLogger } from "../infra/clack-logger.js";
 import { ClackMultiselect } from "../infra/clack-multiselect.js";
 import { ClackProgress } from "../infra/clack-progress.js";
@@ -143,7 +141,7 @@ export async function mainImpl(options: Options): Promise<void> {
 				message: `${total} file${total === 1 ? "" : "s"} will be downloaded. Do you want to continue?`,
 			})) !== true
 		) {
-			throw new ClackCancelError();
+			throw new ShortCircuit({ type: "cancel" });
 		}
 
 		const proxyResult = await proxySources({
@@ -153,7 +151,6 @@ export async function mainImpl(options: Options): Promise<void> {
 			publicFontsDir: paths.publicFontsDir,
 			hasher,
 			createProgress: () => createProgress(total),
-			createCancelError: () => new ClackCancelError(),
 			fetch: (url) =>
 				fetch(url)
 					.then((res) => res.arrayBuffer())

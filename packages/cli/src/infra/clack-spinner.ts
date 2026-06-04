@@ -8,7 +8,7 @@ export class ClackSpinner implements Spinner {
 		this.#spinner = spinner({
 			// https://github.com/bombshell-dev/clack/issues/83
 			// onCancel() {
-			// 	throw new ClackCancelError();
+			// 	throw new ShortCircuit({ type: "cancel" });
 			// },
 		});
 	}

@@ -1,6 +1,6 @@
 import { isCancel, text } from "@clack/prompts";
+import { ShortCircuit } from "../core/short-circuit.js";
 import type { Text, TextOptions } from "../types.js";
-import { ClackCancelError } from "./clack-error-handler.js";
 
 export class ClackText implements Text {
 	async run(options: TextOptions): Promise<string> {
@@ -10,7 +10,7 @@ export class ClackText implements Text {
 			validate: options.validate,
 		});
 		if (isCancel(result)) {
-			throw new ClackCancelError();
+			throw new ShortCircuit({ type: "cancel" });
 		}
 		return result;
 	}

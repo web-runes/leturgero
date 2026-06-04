@@ -1,6 +1,6 @@
 import { autocomplete, isCancel } from "@clack/prompts";
+import { ShortCircuit } from "../core/short-circuit.js";
 import type { Autocomplete, AutocompleteOptions } from "../types.js";
-import { ClackCancelError } from "./clack-error-handler.js";
 
 export class ClackAutocomplete implements Autocomplete {
 	async run<T>(options: AutocompleteOptions<T>): Promise<T> {
@@ -13,7 +13,7 @@ export class ClackAutocomplete implements Autocomplete {
 			},
 		});
 		if (isCancel(result)) {
-			throw new ClackCancelError();
+			throw new ShortCircuit({ type: "cancel" });
 		}
 		return result;
 	}

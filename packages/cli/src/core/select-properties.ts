@@ -12,6 +12,7 @@ import {
 	type InferArgs,
 	parseArray,
 } from "./args.js";
+import { ShortCircuit } from "./short-circuit.js";
 
 export const args = {
 	weights: {
@@ -191,10 +192,8 @@ export async function selectProperties(
 		options.logger.step(
 			`Formats: ${(options.suggestions?.formats ?? DEFAULT_PROPERTIES.formats).join(", ")}`,
 		);
-		process.exit(0);
+		throw new ShortCircuit({ type: "silent" });
 	}
-
-	// TODO: validate
 
 	const weights =
 		validateWeights(options.args.weights) ??
