@@ -1,7 +1,3 @@
-import { createReadStream } from "node:fs";
-import { writeFile } from "node:fs/promises";
-import { styleText } from "node:util";
-import { intro, note, outro, stream } from "@clack/prompts";
 import type { InferArgs } from "../core/args.js";
 import { generateCss } from "../core/generate-css.js";
 import { proxySources } from "../core/proxy-sources.js";
@@ -32,6 +28,7 @@ import type {
 	Confirm,
 	DirectoryPicker,
 	ErrorHandler,
+	Filesystem,
 	FontsManager,
 	Hasher,
 	Logger,
@@ -44,10 +41,6 @@ import type {
 
 interface Options {
 	isAgent: boolean;
-	pkg: {
-		name: string;
-		version: string;
-	};
 	args: InferArgs<typeof selectPathsArgs> &
 		InferArgs<typeof selectFamilyArgs> &
 		InferArgs<typeof selectPropertiesArgs> &
@@ -67,26 +60,17 @@ interface Options {
 		keys: Array<keyof T>,
 	) => Search<T>;
 	createConfirm: () => Confirm;
+	intro: () => Promise<void>;
+	outro: () => void;
+	filesystem: Filesystem;
 }
 
-// TODO: make sure everything is abstracted here (check packages imports)
-// TODO: check all core to make sure everything is abstracted correctly
-// TODO: maybe different abstractions can be passed if it's an agent or not?
+// TODO: maybe different abstractions can be passed if it's an agent or not? eg. noop
 // TODO: json logger for agents?
 
 export async function mainImpl(options: Options): Promise<void> {
-	const outroMessage = `Thanks for using our tool! We'd love your feedback: ${styleText("blue", "https://github.com/web-runes/leturgero/issues")}`;
 	try {
-		if (!options.isAgent) {
-			intro(
-				`Welcome to ${styleText("bgGreen", ` ${options.pkg.name} `)} ${styleText("green", `v${options.pkg.version}`)}!`,
-			);
-			await stream.message(
-				createReadStream(new URL("../../logo.txt", import.meta.url), {
-					encoding: "utf-8",
-				}),
-			);
-		}
+		await options.intro();
 
 		const initSpinner = options.createSpinner();
 		initSpinner.start("Initializing...");
@@ -177,7 +161,7 @@ export async function mainImpl(options: Options): Promise<void> {
 			filenameToContents: proxyResult.filenameToContents,
 			publicDir: paths.publicDir,
 			publicFontsDir: paths.publicFontsDir,
-			writeFile,
+			filesystem: options.filesystem,
 			logger: options.logger,
 		});
 
@@ -198,18 +182,10 @@ export async function mainImpl(options: Options): Promise<void> {
 			cssVariable,
 			logger: options.logger,
 			stylesDir: paths.stylesDir,
-			writeFile,
+			filesystem: options.filesystem,
 		});
 
-		note(
-			[
-				"Now that you have font and CSS files, it is time to hook them up in your project.",
-				`Head over to the documentation to learn how: ${styleText("blue", "TODO:")}`,
-			].join("\n"),
-			"Next steps",
-		);
-
-		outro(outroMessage);
+		options.outro();
 	} catch (error) {
 		options.errorHandler.onError(error);
 	}

@@ -1,17 +1,17 @@
 import { join } from "node:path";
-import type { Logger } from "../types.js";
+import type { Filesystem, Logger } from "../types.js";
 
 interface Options {
 	cssVariable: string;
 	css: string;
-	writeFile: (path: string, contents: Buffer) => Promise<void>;
+	filesystem: Filesystem;
 	stylesDir: string;
 	logger: Logger;
 }
 
 export async function saveCssToDisk(options: Options): Promise<void> {
 	const filename = `${options.cssVariable.slice(2)}.css`;
-	await options.writeFile(
+	await options.filesystem.writeFile(
 		join(options.stylesDir, filename),
 		Buffer.from(options.css),
 	);

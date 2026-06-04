@@ -102,3 +102,8 @@ export interface Text {
 export interface Confirm {
 	run: (message: string) => Promise<boolean>;
 }
+
+export interface Filesystem {
+	mkdir: (path: string) => Promise<void>;
+	writeFile: (path: string, contents: Buffer) => Promise<void>;
+}

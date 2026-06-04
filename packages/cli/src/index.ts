@@ -1,4 +1,6 @@
-import { updateSettings } from "@clack/prompts";
+import { createReadStream } from "node:fs";
+import { styleText } from "node:util";
+import { intro, note, outro, stream, updateSettings } from "@clack/prompts";
 import { cli, define } from "gunshi";
 import { getAgentProfile } from "gunshi/agent";
 import pkg from "../package.json" with { type: "json" };
@@ -43,6 +45,7 @@ const main = define({
 			{ FuseSearch },
 			{ UnifontFontsManager },
 			{ ClackConfirm },
+			{ NodeFilesystem },
 		] = await Promise.all([
 			import("./commands/main.js"),
 			import("./infra/clack-autocomplete.js"),
@@ -57,11 +60,13 @@ const main = define({
 			import("./infra/fuse-search.js"),
 			import("./infra/unifont-fonts-manager.js"),
 			import("./infra/clack-confirm.js"),
+			import("./infra/node-filesystem.js"),
 		]);
+
+		const outroMessage = `Thanks for using our tool! We'd love your feedback: ${styleText("blue", "https://github.com/web-runes/leturgero/issues")}`;
 
 		return await mainImpl({
 			isAgent,
-			pkg,
 			args: normalizeGunshiArgs(
 				{
 					...selectPathsArgs,
@@ -71,9 +76,7 @@ const main = define({
 				},
 				ctx.values,
 			),
-			errorHandler: new ClackErrorHandler({
-				outroMessage: "TODO: unify with mainImpl",
-			}),
+			errorHandler: new ClackErrorHandler({ outroMessage }),
 			createSpinner: () => new ClackSpinner(),
 			createAutocomplete: () => new ClackAutocomplete(),
 			createMultiselect: () => new ClackMultiselect(),
@@ -85,6 +88,29 @@ const main = define({
 			createFontsManager: () => UnifontFontsManager.create(),
 			createSearch: (items, keys) => new FuseSearch(items, keys),
 			createConfirm: () => new ClackConfirm({ force: isAgent }),
+			filesystem: new NodeFilesystem(),
+			intro: async () => {
+				if (isAgent) return;
+				intro(
+					`Welcome to ${styleText("bgGreen", ` ${pkg.name} `)} ${styleText("green", `v${pkg.version}`)}!`,
+				);
+				await stream.message(
+					createReadStream(new URL("../logo.txt", import.meta.url), {
+						encoding: "utf-8",
+					}),
+				);
+			},
+			outro: () => {
+				note(
+					[
+						"Now that you have font and CSS files, it is time to hook them up in your project.",
+						`Head over to the documentation to learn how: ${styleText("blue", "TODO:")}`,
+					].join("\n"),
+					"Next steps",
+				);
+
+				outro(outroMessage);
+			},
 		});
 	},
 });
