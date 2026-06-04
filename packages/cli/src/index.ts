@@ -42,6 +42,7 @@ const main = define({
 			{ CryptoHasher },
 			{ FuseSearch },
 			{ UnifontFontsManager },
+			{ ClackConfirm },
 		] = await Promise.all([
 			import("./commands/main.js"),
 			import("./infra/clack-autocomplete.js"),
@@ -55,6 +56,7 @@ const main = define({
 			import("./infra/crypto-hasher.js"),
 			import("./infra/fuse-search.js"),
 			import("./infra/unifont-fonts-manager.js"),
+			import("./infra/clack-confirm.js"),
 		]);
 
 		return await mainImpl({
@@ -82,6 +84,7 @@ const main = define({
 			hasher: new CryptoHasher(),
 			createFontsManager: () => UnifontFontsManager.create(),
 			createSearch: (items, keys) => new FuseSearch(items, keys),
+			createConfirm: () => new ClackConfirm({ force: isAgent }),
 		});
 	},
 });

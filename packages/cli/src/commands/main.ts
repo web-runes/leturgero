@@ -1,7 +1,7 @@
 import { createReadStream } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { styleText } from "node:util";
-import { confirm, intro, note, outro, stream } from "@clack/prompts";
+import { intro, note, outro, stream } from "@clack/prompts";
 import type { InferArgs } from "../core/args.js";
 import { generateCss } from "../core/generate-css.js";
 import { proxySources } from "../core/proxy-sources.js";
@@ -29,6 +29,7 @@ import {
 import { ShortCircuit } from "../core/short-circuit.js";
 import type {
 	Autocomplete,
+	Confirm,
 	DirectoryPicker,
 	ErrorHandler,
 	FontsManager,
@@ -65,6 +66,7 @@ interface Options {
 		items: Array<T>,
 		keys: Array<keyof T>,
 	) => Search<T>;
+	createConfirm: () => Confirm;
 }
 
 // TODO: make sure everything is abstracted here (check packages imports)
@@ -147,10 +149,11 @@ export async function mainImpl(options: Options): Promise<void> {
 		}, 0);
 
 		if (
-			!options.isAgent &&
-			(await confirm({
-				message: `${total} file${total === 1 ? "" : "s"} will be downloaded. Do you want to continue?`,
-			})) !== true
+			!(await options
+				.createConfirm()
+				.run(
+					`${total} file${total === 1 ? "" : "s"} will be downloaded. Do you want to continue?`,
+				))
 		) {
 			throw new ShortCircuit({ type: "cancel" });
 		}

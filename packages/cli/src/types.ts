@@ -98,3 +98,7 @@ export interface TextOptions {
 export interface Text {
 	run: (options: TextOptions) => Promise<string>;
 }
+
+export interface Confirm {
+	run: (message: string) => Promise<boolean>;
+}
