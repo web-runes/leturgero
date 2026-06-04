@@ -25,14 +25,17 @@ interface Options {
 
 function validate(value: string | undefined): string | undefined {
 	if (!value) return;
-	if (!value.startsWith("--")) throw new Error("Must start with --");
-	if (value.length < 3)
-		throw new Error("Must at least contain another character");
+	if (!value.startsWith("--")) return "Must start with --";
+	if (value.length < 3) return "Must at least contain another character";
 	if (!/^--[A-Za-z0-9_-]+$/.test(value))
-		throw new Error(
-			"Must be valid CSS ident. It can only contain letters, digits, hyphens and underscores",
-		);
-	return value;
+		return "Must be valid CSS ident. It can only contain letters, digits, hyphens and underscores";
+}
+
+export function validateSelectCssVariableArgs(values: Options["args"]) {
+	const error = validate(values.cssVariable);
+	if (error) throw new ShortCircuit({ type: "error", error });
+
+	return values;
 }
 
 export async function selectCssVariable(options: Options): Promise<string> {
@@ -42,17 +45,13 @@ export async function selectCssVariable(options: Options): Promise<string> {
 	}
 
 	return (
-		validate(options.args.cssVariable) ??
+		options.args.cssVariable ??
 		(await options.text.run({
 			message: "What name would you like to use for the CSS variable?",
 			initialValue: `--font-${kebabize(options.family)}`,
 			validate(value) {
 				if (!value) return "Please enter a value";
-				try {
-					return validate(value);
-				} catch (error) {
-					return (error as Error).message;
-				}
+				return validate(value);
 			},
 		}))
 	);

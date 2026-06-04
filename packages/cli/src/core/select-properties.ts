@@ -46,7 +46,12 @@ interface Options {
 	createMultiselect: () => Multiselect;
 	logger: Logger;
 	isAgent: boolean;
-	args: InferArgs<typeof args>;
+	args: {
+		weights: Array<string> | undefined;
+		styles: Array<FontStyles> | undefined;
+		formats: Array<FontFormat> | undefined;
+		subsets: Array<string> | undefined;
+	};
 }
 
 function msg(word: string, suggestions: boolean): string {
@@ -61,76 +66,10 @@ export const DEFAULT_PROPERTIES = {
 	formats: ["woff2", "woff"],
 } as const;
 
-// TODO: validate
-
-function validateWeights(
-	rawWeights: Array<string> | undefined,
-): Array<string> | undefined {
-	if (!rawWeights) return;
-
-	const valid = new Set<string>();
-	const invalid = new Set<string>();
-	for (const rawWeight of rawWeights) {
-		if (rawWeight.includes(" ")) {
-			const parts = rawWeight.split(" ");
-			if (parts.length !== 2) {
-				invalid.add(rawWeight);
-				continue;
-			}
-
-			const min = Number.parseInt(parts[0], 10);
-			const max = Number.parseInt(parts[0], 10);
-
-			if (Number.isNaN(min) || Number.isNaN(max)) {
-				invalid.add(rawWeight);
-			} else {
-				valid.add(rawWeight);
-			}
-
-			continue;
-		}
-
-		const parsed = Number.parseInt(rawWeight, 10);
-		if (Number.isNaN(parsed)) {
-			invalid.add(rawWeight);
-		} else {
-			valid.add(rawWeight);
-		}
-	}
-
-	if (invalid.size > 0) {
-		throw new Error(`Invalid values: ${[...invalid].join(", ")}`);
-	}
-
-	return valid.size > 0 ? [...valid] : undefined;
-}
-
 function isFontStyle(style: string): style is FontStyles {
 	return (["normal", "italic", "oblique"] satisfies Array<FontStyles>).includes(
 		style as any,
 	);
-}
-
-function validateStyles(
-	styles: Array<string> | undefined,
-): Array<FontStyles> | undefined {
-	if (!styles) return;
-
-	const valid = new Set<FontStyles>();
-	const invalid = new Set<string>();
-	for (const style of styles) {
-		if (isFontStyle(style)) {
-			valid.add(style);
-		} else {
-			invalid.add(style);
-		}
-	}
-
-	if (invalid.size > 0) {
-		throw new Error(`Invalid values: ${[...invalid].join(", ")}`);
-	}
-
-	return valid.size > 0 ? [...valid] : undefined;
 }
 
 function isFontFormat(format: string): format is FontFormat {
@@ -139,20 +78,20 @@ function isFontFormat(format: string): format is FontFormat {
 	).includes(format as any);
 }
 
-// TODO: short circuit class maybe
+function validateArray<T extends string>(
+	elements: Array<string> | undefined,
+	cb: (element: string) => { valid: T } | { invalid: string },
+): { valid: Array<T> | undefined } | { invalid: string } {
+	if (!elements) return { valid: undefined };
 
-function validateFormats(
-	formats: Array<string> | undefined,
-): Array<FontFormat> | undefined {
-	if (!formats) return;
-
-	const valid = new Set<FontFormat>();
+	const valid = new Set<T>();
 	const invalid = new Set<string>();
-	for (const format of formats) {
-		if (isFontFormat(format)) {
-			valid.add(format);
+	for (const element of elements) {
+		const res = cb(element);
+		if ("invalid" in res) {
+			invalid.add(element);
 		} else {
-			invalid.add(format);
+			valid.add(res.valid);
 		}
 	}
 
@@ -160,7 +99,74 @@ function validateFormats(
 		throw new Error(`Invalid values: ${[...invalid].join(", ")}`);
 	}
 
-	return valid.size > 0 ? [...valid] : undefined;
+	return { valid: valid.size > 0 ? [...valid] : undefined };
+}
+
+function shortCircuitInvalid<T extends string>(
+	res: { valid: Array<T> | undefined } | { invalid: string },
+): Array<T> | undefined {
+	if ("invalid" in res) {
+		throw new ShortCircuit({ type: "error", error: res.invalid });
+	}
+	return res.valid;
+}
+
+export function validateSelectPropertiesArgs(
+	values: InferArgs<typeof args>,
+): Options["args"] {
+	const weights = shortCircuitInvalid(
+		validateArray<string>(values.weights, (rawWeight) => {
+			if (rawWeight.includes(" ")) {
+				const parts = rawWeight.split(" ");
+				if (parts.length !== 2) {
+					return { invalid: rawWeight };
+				}
+
+				const min = Number.parseInt(parts[0], 10);
+				const max = Number.parseInt(parts[0], 10);
+
+				if (Number.isNaN(min) || Number.isNaN(max)) {
+					return { invalid: rawWeight };
+				} else {
+					return { valid: rawWeight };
+				}
+			}
+
+			const parsed = Number.parseInt(rawWeight, 10);
+			if (Number.isNaN(parsed)) {
+				return { invalid: rawWeight };
+			} else {
+				return { valid: rawWeight };
+			}
+		}),
+	);
+
+	const styles = shortCircuitInvalid(
+		validateArray<FontStyles>(values.styles, (style) => {
+			if (isFontStyle(style)) {
+				return { valid: style };
+			} else {
+				return { invalid: style };
+			}
+		}),
+	);
+
+	const formats = shortCircuitInvalid(
+		validateArray<FontFormat>(values.formats, (format) => {
+			if (isFontFormat(format)) {
+				return { valid: format };
+			} else {
+				return { invalid: format };
+			}
+		}),
+	);
+
+	return {
+		weights,
+		styles,
+		formats,
+		subsets: values.subsets,
+	};
 }
 
 export async function selectProperties(
@@ -196,7 +202,7 @@ export async function selectProperties(
 	}
 
 	const weights =
-		validateWeights(options.args.weights) ??
+		options.args.weights ??
 		(await options.createMultiselect().run<string>({
 			message: msg("weights", !!options.suggestions?.weights),
 			options: (options.suggestions?.weights ?? DEFAULT_PROPERTIES.weights).map(
@@ -205,7 +211,7 @@ export async function selectProperties(
 		}));
 
 	const styles =
-		validateStyles(options.args.styles) ??
+		options.args.styles ??
 		(await options.createMultiselect().run<FontStyles>({
 			message: msg("styles", !!options.suggestions?.styles),
 			options: (options.suggestions?.styles ?? DEFAULT_PROPERTIES.styles).map(
@@ -229,7 +235,7 @@ export async function selectProperties(
 	}
 
 	const formats =
-		validateFormats(options.args.formats) ??
+		options.args.formats ??
 		(await options.createMultiselect().run<FontFormat>({
 			message: msg("formats", !!options.suggestions?.formats),
 			options: (options.suggestions?.formats ?? DEFAULT_PROPERTIES.formats).map(

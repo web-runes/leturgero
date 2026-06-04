@@ -10,6 +10,7 @@ import { saveFontsToDisk } from "../core/save-fonts-to-disk.js";
 import {
 	selectCssVariable,
 	type args as selectCssVariableArgs,
+	validateSelectCssVariableArgs,
 } from "../core/select-css-variable.js";
 import {
 	selectFamily,
@@ -18,10 +19,12 @@ import {
 import {
 	selectPaths,
 	type args as selectPathsArgs,
+	validateSelectPathsArgs,
 } from "../core/select-paths.js";
 import {
 	selectProperties,
 	type args as selectPropertiesArgs,
+	validateSelectPropertiesArgs,
 } from "../core/select-properties.js";
 import { ShortCircuit } from "../core/short-circuit.js";
 import { ClackAutocomplete } from "../infra/clack-autocomplete.js";
@@ -87,7 +90,7 @@ export async function mainImpl(options: Options): Promise<void> {
 			root,
 			text: createText(),
 			isAgent: options.isAgent,
-			args: options.args,
+			args: await validateSelectPathsArgs(options.args),
 			logger,
 		});
 
@@ -106,7 +109,7 @@ export async function mainImpl(options: Options): Promise<void> {
 			createMultiselect,
 			logger,
 			isAgent: options.isAgent,
-			args: options.args,
+			args: validateSelectPropertiesArgs(options.args),
 		});
 
 		const resolveSpinner = createSpinner();
@@ -128,7 +131,7 @@ export async function mainImpl(options: Options): Promise<void> {
 			text: createText(),
 			logger,
 			isAgent: options.isAgent,
-			args: options.args,
+			args: validateSelectCssVariableArgs(options.args),
 		});
 
 		const total = fonts.reduce((acc, font) => {
