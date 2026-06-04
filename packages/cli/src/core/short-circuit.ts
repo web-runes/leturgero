@@ -3,8 +3,6 @@ type ShortCircuitData =
 	| { type: "error"; error: string }
 	| { type: "silent" };
 
-// TODO: replaces the clack cancel error
-
 export class ShortCircuit {
 	readonly data: ShortCircuitData;
 

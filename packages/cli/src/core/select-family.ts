@@ -31,14 +31,11 @@ export async function selectFamily(options: Options): Promise<MinimalFamily> {
 	}
 
 	if (options.args.fontFamily) {
-		const exact = options.search
-			.search(options.args.fontFamily, {
-				exact: true,
-			})
-			.at(0);
-		if (exact) {
-			return exact;
-		}
+		const exact = options.search.items.find(
+			(e) => e.name.toLowerCase() === options.args.fontFamily?.toLowerCase(),
+		);
+		if (exact) return exact;
+
 		const items = options.search.search(options.args.fontFamily).slice(0, MAX);
 		options.logger.warn(
 			"No exact match found for --font-family. Retry with a valid family",
