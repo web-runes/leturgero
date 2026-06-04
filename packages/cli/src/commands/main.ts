@@ -3,6 +3,7 @@ import { writeFile } from "node:fs/promises";
 import { styleText } from "node:util";
 import { confirm, intro, note, outro, stream } from "@clack/prompts";
 import type { FontStyles } from "unifont";
+
 import { generateCss } from "../core/generate-css.js";
 import { proxySources } from "../core/proxy-sources.js";
 import { saveCssToDisk } from "../core/save-css-to-disk.js";
@@ -27,7 +28,6 @@ import { FuseSearch } from "../infra/fuse-search.js";
 import { UnifontFontsManager } from "../infra/unifont-fonts-manager.js";
 import type { FontFormat } from "../types.js";
 
-// TODO: consider removing main command in favor of named command, "install"?
 // TODO: consider having only one main command
 
 interface Options {

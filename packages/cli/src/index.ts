@@ -196,6 +196,7 @@ const main = define({
 			},
 		},
 	},
+	examples: "TODO:",
 	async run(ctx) {
 		return await import("./commands/main.js").then((mod) =>
 			mod.mainImpl({
@@ -217,68 +218,9 @@ const main = define({
 	},
 });
 
-const _search = define({
-	name: "search",
-	description: "Search for available font families",
-	args: {
-		family: {
-			type: "positional",
-			description:
-				"The font family name to search for. If there's no exact match, potential matches will be returned",
-			required: agent,
-			multiple: true,
-		},
-	},
-	async run(ctx) {
-		return await import("./commands/search.js").then((mod) =>
-			mod.searchImpl(ctx.values.family?.join(" ")),
-		);
-	},
-});
-
-const _details = define({
-	name: "details",
-	description: "Get details for a given font family",
-	args: {
-		family: {
-			type: "positional",
-			description: "The font family name to get details from",
-			required: agent,
-			multiple: true,
-		},
-	},
-	async run(ctx) {
-		return await import("./commands/details.js").then((mod) =>
-			mod.detailsImpl(ctx.values.family?.join(" ")),
-		);
-	},
-});
-
-const _save = define({
-	name: "Save",
-	description: "Save font family files to disk.",
-	args: {
-		family: {
-			type: "positional",
-			description: "The font family name to get data from",
-			required: true,
-			multiple: true,
-		},
-		// What validations to have?
-		publicDir: {
-			type: "string",
-		},
-	},
-});
-
 await cli(process.argv.slice(2), main, {
 	name: pkg.name,
 	description: pkg.description,
 	version: pkg.version,
 	renderHeader: null,
-	// subCommands: {
-	// 	search,
-	// 	details,
-	// 	save,
-	// },
 });

@@ -12,6 +12,8 @@ interface Options {
 
 const MAX = 10;
 
+// TODO: figure out another pattern than process.exit
+
 export async function selectFamily(options: Options): Promise<MinimalFamily> {
 	if (options.isAgent && !options.args.fontFamily) {
 		options.logger.warn(

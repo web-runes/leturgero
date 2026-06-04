@@ -42,7 +42,27 @@ export async function selectProperties(
 		options.logger.warn(
 			"Following flags must be set: --weights, --styles, --formats (--subsets is optional). Run the command again with --help to know the prerequisites for each.",
 		);
-		// TODO: show options
+		if (!options.suggestions) {
+			options.logger.warn(
+				"Suggestions could not be retrieved, some properties may not be available",
+			);
+		}
+		options.logger.step(
+			`Weights: ${(options.suggestions?.weights ?? DEFAULT_PROPERTIES.weights).join(", ")}`,
+		);
+		options.logger.step(
+			`Styles: ${(options.suggestions?.styles ?? DEFAULT_PROPERTIES.styles).join(", ")}`,
+		);
+		if (options.suggestions?.subsets) {
+			options.logger.step(
+				`Subsets: ${(options.suggestions.subsets).join(", ")}`,
+			);
+		} else {
+			options.logger.step("Skipping subsets");
+		}
+		options.logger.step(
+			`Formats: ${(options.suggestions?.formats ?? DEFAULT_PROPERTIES.formats).join(", ")}`,
+		);
 		process.exit(0);
 	}
 
