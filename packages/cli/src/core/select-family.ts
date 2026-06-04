@@ -1,12 +1,23 @@
 import type { Autocomplete, Logger, MinimalFamily, Search } from "../types.js";
+import {
+	type ArgsConstraint,
+	argsToHelpMessage,
+	type InferArgs,
+} from "./args.js";
+
+export const args = {
+	fontFamily: {
+		cliName: "font-family",
+		type: "string",
+		description: "TODO:",
+	},
+} as const satisfies ArgsConstraint;
 
 interface Options {
 	autocomplete: Autocomplete;
 	search: Search<MinimalFamily>;
 	isAgent: boolean;
-	args: {
-		fontFamily: string | undefined;
-	};
+	args: InferArgs<typeof args>;
 	logger: Logger;
 }
 
@@ -16,9 +27,7 @@ const MAX = 10;
 
 export async function selectFamily(options: Options): Promise<MinimalFamily> {
 	if (options.isAgent && !options.args.fontFamily) {
-		options.logger.warn(
-			"Following flags must be set: --font-family. Run the command again with --help to know the prerequisites for each.",
-		);
+		options.logger.warn(argsToHelpMessage(args));
 		process.exit(0);
 	}
 

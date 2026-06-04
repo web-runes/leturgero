@@ -2,16 +2,27 @@ import { createReadStream } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { styleText } from "node:util";
 import { confirm, intro, note, outro, stream } from "@clack/prompts";
-import type { FontStyles } from "unifont";
-
+import type { InferArgs } from "../core/args.js";
 import { generateCss } from "../core/generate-css.js";
 import { proxySources } from "../core/proxy-sources.js";
 import { saveCssToDisk } from "../core/save-css-to-disk.js";
 import { saveFontsToDisk } from "../core/save-fonts-to-disk.js";
-import { selectCssVariable } from "../core/select-css-variable.js";
-import { selectFamily } from "../core/select-family.js";
-import { selectPaths } from "../core/select-paths.js";
-import { selectProperties } from "../core/select-properties.js";
+import {
+	selectCssVariable,
+	type args as selectCssVariableArgs,
+} from "../core/select-css-variable.js";
+import {
+	selectFamily,
+	type args as selectFamilyArgs,
+} from "../core/select-family.js";
+import {
+	selectPaths,
+	type args as selectPathsArgs,
+} from "../core/select-paths.js";
+import {
+	selectProperties,
+	type args as selectPropertiesArgs,
+} from "../core/select-properties.js";
 import { ClackAutocomplete } from "../infra/clack-autocomplete.js";
 import { ClackDirectoryPicker } from "../infra/clack-directory-picker.js";
 import {
@@ -26,9 +37,6 @@ import { ClackText } from "../infra/clack-text.js";
 import { CryptoHasher } from "../infra/crypto-hasher.js";
 import { FuseSearch } from "../infra/fuse-search.js";
 import { UnifontFontsManager } from "../infra/unifont-fonts-manager.js";
-import type { FontFormat } from "../types.js";
-
-// TODO: consider having only one main command
 
 interface Options {
 	isAgent: boolean;
@@ -36,21 +44,14 @@ interface Options {
 		name: string;
 		version: string;
 	};
-	// TODO: reuse types?
-	args: {
-		publicDir: string | undefined;
-		publicFontsDir: string | undefined;
-		stylesDir: string | undefined;
-		fontFamily: string | undefined;
-		weights: Array<string> | undefined;
-		styles: Array<FontStyles> | undefined;
-		formats: Array<FontFormat> | undefined;
-		subsets: Array<string> | undefined;
-		cssVariable: string | undefined;
-	};
+	args: InferArgs<typeof selectPathsArgs> &
+		InferArgs<typeof selectFamilyArgs> &
+		InferArgs<typeof selectPropertiesArgs> &
+		InferArgs<typeof selectCssVariableArgs>;
 }
 
 // TODO: maybe different abstractions can be passed if it's an agent or not?
+// TODO: json logger for agents?
 
 export async function mainImpl(options: Options): Promise<void> {
 	const outroMessage = `Thanks for using our tool! We'd love your feedback: ${styleText("blue", "https://github.com/web-runes/leturgero/issues")}`;

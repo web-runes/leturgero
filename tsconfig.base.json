@@ -15,7 +15,6 @@
 		"noUncheckedSideEffectImports": true,
 		"erasableSyntaxOnly": true,
 		"skipLibCheck": true,
-		"isolatedDeclarations": true,
 		"verbatimModuleSyntax": true
 	},
 	"files": []
