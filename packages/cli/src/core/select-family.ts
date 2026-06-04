@@ -38,7 +38,7 @@ export async function selectFamily(options: Options): Promise<MinimalFamily> {
 
 		const items = options.search.search(options.args.fontFamily).slice(0, MAX);
 		options.logger.warn(
-			"No exact match found for --font-family. Retry with a valid family",
+			`No exact match found for --${args.fontFamily.cliName}. Retry with a valid family`,
 		);
 		options.logger.step(
 			`Available families (top ${MAX} matches): ${items.map((e) => e.name).join(", ")}`,

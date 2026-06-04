@@ -8,13 +8,14 @@ import { args as selectFamilyArgs } from "./core/select-family.js";
 import { args as selectPathsArgs } from "./core/select-paths.js";
 import { args as selectPropertiesArgs } from "./core/select-properties.js";
 
-// TODO: properly abstract commands
 // TODO: test flow as human
 // TODO: test flow as agent
 // TODO: review all texts again
+// TODO: tests
 
 const { isAgent } = getAgentProfile();
 
+// TODO: not needed if there's a json logger for agents
 if (isAgent) {
 	updateSettings({ withGuide: false });
 }
@@ -28,21 +29,60 @@ const main = define({
 	}),
 	examples: "TODO:",
 	async run(ctx) {
-		return await import("./commands/main.js").then((mod) =>
-			mod.mainImpl({
-				isAgent,
-				pkg,
-				args: normalizeGunshiArgs(
-					{
-						...selectPathsArgs,
-						...selectFamilyArgs,
-						...selectPropertiesArgs,
-						...selectCssVariableArgs,
-					},
-					ctx.values,
-				),
+		const [
+			{ mainImpl },
+			{ ClackAutocomplete },
+			{ ClackDirectoryPicker },
+			{ ClackErrorHandler },
+			{ ClackLogger },
+			{ ClackMultiselect },
+			{ ClackProgress },
+			{ ClackSpinner },
+			{ ClackText },
+			{ CryptoHasher },
+			{ FuseSearch },
+			{ UnifontFontsManager },
+		] = await Promise.all([
+			import("./commands/main.js"),
+			import("./infra/clack-autocomplete.js"),
+			import("./infra/clack-directory-picker.js"),
+			import("./infra/clack-error-handler.js"),
+			import("./infra/clack-logger.js"),
+			import("./infra/clack-multiselect.js"),
+			import("./infra/clack-progress.js"),
+			import("./infra/clack-spinner.js"),
+			import("./infra/clack-text.js"),
+			import("./infra/crypto-hasher.js"),
+			import("./infra/fuse-search.js"),
+			import("./infra/unifont-fonts-manager.js"),
+		]);
+
+		return await mainImpl({
+			isAgent,
+			pkg,
+			args: normalizeGunshiArgs(
+				{
+					...selectPathsArgs,
+					...selectFamilyArgs,
+					...selectPropertiesArgs,
+					...selectCssVariableArgs,
+				},
+				ctx.values,
+			),
+			errorHandler: new ClackErrorHandler({
+				outroMessage: "TODO: unify with mainImpl",
 			}),
-		);
+			createSpinner: () => new ClackSpinner(),
+			createAutocomplete: () => new ClackAutocomplete(),
+			createMultiselect: () => new ClackMultiselect(),
+			createDirectoryPicker: () => new ClackDirectoryPicker(),
+			createProgress: (max) => new ClackProgress({ max }),
+			createText: () => new ClackText(),
+			logger: new ClackLogger(),
+			hasher: new CryptoHasher(),
+			createFontsManager: () => UnifontFontsManager.create(),
+			createSearch: (items, keys) => new FuseSearch(items, keys),
+		});
 	},
 });
 

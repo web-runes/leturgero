@@ -4,6 +4,7 @@ import type { Logger } from "../types.js";
 
 interface Options {
 	filenameToContents: Map<string, Buffer>;
+	// TODO: make class which can also handle mkdir
 	writeFile: (path: string, contents: Buffer) => Promise<void>;
 	publicDir: string;
 	publicFontsDir: string;

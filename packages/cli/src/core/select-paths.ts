@@ -1,3 +1,4 @@
+// TODO: need to be a class
 import { lstat } from "node:fs/promises";
 import type { DirectoryPicker, Logger, Text } from "../types.js";
 import {

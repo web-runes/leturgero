@@ -27,17 +27,19 @@ import {
 	validateSelectPropertiesArgs,
 } from "../core/select-properties.js";
 import { ShortCircuit } from "../core/short-circuit.js";
-import { ClackAutocomplete } from "../infra/clack-autocomplete.js";
-import { ClackDirectoryPicker } from "../infra/clack-directory-picker.js";
-import { ClackErrorHandler } from "../infra/clack-error-handler.js";
-import { ClackLogger } from "../infra/clack-logger.js";
-import { ClackMultiselect } from "../infra/clack-multiselect.js";
-import { ClackProgress } from "../infra/clack-progress.js";
-import { ClackSpinner } from "../infra/clack-spinner.js";
-import { ClackText } from "../infra/clack-text.js";
-import { CryptoHasher } from "../infra/crypto-hasher.js";
-import { FuseSearch } from "../infra/fuse-search.js";
-import { UnifontFontsManager } from "../infra/unifont-fonts-manager.js";
+import type {
+	Autocomplete,
+	DirectoryPicker,
+	ErrorHandler,
+	FontsManager,
+	Hasher,
+	Logger,
+	Multiselect,
+	Progress,
+	Search,
+	Spinner,
+	Text,
+} from "../types.js";
 
 interface Options {
 	isAgent: boolean;
@@ -49,24 +51,30 @@ interface Options {
 		InferArgs<typeof selectFamilyArgs> &
 		InferArgs<typeof selectPropertiesArgs> &
 		InferArgs<typeof selectCssVariableArgs>;
+	errorHandler: ErrorHandler;
+	createSpinner: () => Spinner;
+	createAutocomplete: () => Autocomplete;
+	createMultiselect: () => Multiselect;
+	createDirectoryPicker: () => DirectoryPicker;
+	createProgress: (max: number) => Progress;
+	createText: () => Text;
+	logger: Logger;
+	hasher: Hasher;
+	createFontsManager: () => Promise<FontsManager>;
+	createSearch: <T extends Record<string, any>>(
+		items: Array<T>,
+		keys: Array<keyof T>,
+	) => Search<T>;
 }
 
+// TODO: make sure everything is abstracted here (check packages imports)
+// TODO: check all core to make sure everything is abstracted correctly
 // TODO: maybe different abstractions can be passed if it's an agent or not?
 // TODO: json logger for agents?
 
 export async function mainImpl(options: Options): Promise<void> {
 	const outroMessage = `Thanks for using our tool! We'd love your feedback: ${styleText("blue", "https://github.com/web-runes/leturgero/issues")}`;
-	const errorHandler = new ClackErrorHandler({ outroMessage });
 	try {
-		const createSpinner = () => new ClackSpinner();
-		const createAutocomplete = () => new ClackAutocomplete();
-		const createMultiselect = () => new ClackMultiselect();
-		const createDirectoryPicker = () => new ClackDirectoryPicker();
-		const createProgress = (max: number) => new ClackProgress({ max });
-		const createText = () => new ClackText();
-		const logger = new ClackLogger();
-		const hasher = new CryptoHasher();
-
 		if (!options.isAgent) {
 			intro(
 				`Welcome to ${styleText("bgGreen", ` ${options.pkg.name} `)} ${styleText("green", `v${options.pkg.version}`)}!`,
@@ -78,41 +86,41 @@ export async function mainImpl(options: Options): Promise<void> {
 			);
 		}
 
-		const initSpinner = createSpinner();
+		const initSpinner = options.createSpinner();
 		initSpinner.start("Initializing...");
-		const fontsManager = await UnifontFontsManager.create();
+		const fontsManager = await options.createFontsManager();
 		initSpinner.stop("Initialized");
 
 		const root = process.cwd();
 
 		const paths = await selectPaths({
-			directoryPicker: createDirectoryPicker(),
+			directoryPicker: options.createDirectoryPicker(),
 			root,
-			text: createText(),
+			text: options.createText(),
 			isAgent: options.isAgent,
 			args: await validateSelectPathsArgs(options.args),
-			logger,
+			logger: options.logger,
 		});
 
 		const family = await selectFamily({
-			autocomplete: createAutocomplete(),
-			search: new FuseSearch(await fontsManager.list(), ["name"]),
+			autocomplete: options.createAutocomplete(),
+			search: options.createSearch(await fontsManager.list(), ["name"]),
 			args: options.args,
 			isAgent: options.isAgent,
-			logger,
+			logger: options.logger,
 		});
 
 		const suggestions = await fontsManager.getSuggestions(family);
 
 		const properties = await selectProperties({
 			suggestions,
-			createMultiselect,
-			logger,
+			createMultiselect: options.createMultiselect,
+			logger: options.logger,
 			isAgent: options.isAgent,
 			args: validateSelectPropertiesArgs(options.args),
 		});
 
-		const resolveSpinner = createSpinner();
+		const resolveSpinner = options.createSpinner();
 		resolveSpinner.start("Retrieving font data...");
 		const resolved = await fontsManager.resolve(family, properties);
 		resolveSpinner.stop("Retrieved");
@@ -120,7 +128,7 @@ export async function mainImpl(options: Options): Promise<void> {
 		let fonts = resolved.fonts;
 
 		if (fonts.length === 0) {
-			logger.warn(
+			options.logger.warn(
 				"No fonts could be found for this combo of weights, styles, subsets and formats. Retry with another combination",
 			);
 			return;
@@ -128,8 +136,8 @@ export async function mainImpl(options: Options): Promise<void> {
 
 		const cssVariable = await selectCssVariable({
 			family: family.name,
-			text: createText(),
-			logger,
+			text: options.createText(),
+			logger: options.logger,
 			isAgent: options.isAgent,
 			args: validateSelectCssVariableArgs(options.args),
 		});
@@ -152,8 +160,8 @@ export async function mainImpl(options: Options): Promise<void> {
 			fonts,
 			publicDir: paths.publicDir,
 			publicFontsDir: paths.publicFontsDir,
-			hasher,
-			createProgress: () => createProgress(total),
+			hasher: options.hasher,
+			createProgress: () => options.createProgress(total),
 			fetch: (url) =>
 				fetch(url)
 					.then((res) => res.arrayBuffer())
@@ -167,7 +175,7 @@ export async function mainImpl(options: Options): Promise<void> {
 			publicDir: paths.publicDir,
 			publicFontsDir: paths.publicFontsDir,
 			writeFile,
-			logger,
+			logger: options.logger,
 		});
 
 		// TODO: ask for fallbacks (use resolved.fallbacks)
@@ -185,7 +193,7 @@ export async function mainImpl(options: Options): Promise<void> {
 		await saveCssToDisk({
 			css,
 			cssVariable,
-			logger,
+			logger: options.logger,
 			stylesDir: paths.stylesDir,
 			writeFile,
 		});
@@ -200,6 +208,6 @@ export async function mainImpl(options: Options): Promise<void> {
 
 		outro(outroMessage);
 	} catch (error) {
-		errorHandler.onError(error);
+		options.errorHandler.onError(error);
 	}
 }
