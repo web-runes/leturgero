@@ -81,7 +81,9 @@ export async function mainImpl(options: Options): Promise<void> {
 			root,
 			text: options.createText(),
 			isAgent: options.isAgent,
-			args: await validateSelectPathsArgs(options.args),
+			args: await validateSelectPathsArgs(options.args, {
+				filesystem: options.filesystem,
+			}),
 			logger: options.logger,
 		});
 
