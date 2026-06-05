@@ -108,3 +108,7 @@ export interface Filesystem {
 	writeFile: (path: string, contents: Buffer) => Promise<void>;
 	isDirectory: (path: string | undefined) => Promise<string | undefined>;
 }
+
+export interface Fetcher {
+	fetch: (url: string) => Promise<Buffer>;
+}

@@ -1,6 +1,6 @@
 import { extname, join, relative } from "node:path";
 import type { FontFaceData, RemoteFontSource } from "unifont";
-import type { Hasher, Progress } from "../types.js";
+import type { Fetcher, Hasher, Progress } from "../types.js";
 import { kebabize } from "../utils.js";
 import { ShortCircuit } from "./short-circuit.js";
 
@@ -11,7 +11,7 @@ interface Options {
 	publicDir: string;
 	publicFontsDir: string;
 	createProgress: () => Progress;
-	fetch: (url: string) => Promise<Buffer>;
+	fetcher: Fetcher;
 }
 
 const FONT_TYPES = ["woff2", "woff", "otf", "ttf", "eot"] as const;
@@ -57,7 +57,7 @@ export async function proxySources(options: Options): Promise<{
 					font.src.map(async (src) => {
 						if ("name" in src) return { ...src };
 
-						const contents = await options.fetch(src.url);
+						const contents = await options.fetcher.fetch(src.url);
 						prog.advance(1);
 
 						const format = getFormat(src);

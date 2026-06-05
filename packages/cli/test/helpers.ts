@@ -3,15 +3,23 @@ import { ShortCircuit } from "../dist/core/short-circuit.js";
 import type {
 	Autocomplete,
 	AutocompleteOptions,
+	Confirm,
 	DirectoryPicker,
 	DirectoryPickerOptions,
+	ErrorHandler,
+	FamilyProperties,
+	FamilySuggestions,
+	Fetcher,
 	Filesystem,
+	FontsManager,
 	Hasher,
 	Logger,
+	MinimalFamily,
 	Multiselect,
 	MultiselectOptions,
 	Progress,
 	Search,
+	Spinner,
 	Text,
 	TextOptions,
 } from "../dist/types.js";
@@ -166,6 +174,117 @@ export class FakeSearch<T extends Record<string, any>> implements Search<T> {
 
 	search(): Array<T> {
 		return this.#results;
+	}
+}
+
+export class FakeSpinner implements Spinner {
+	readonly starts: Array<string> = [];
+	readonly stops: Array<string> = [];
+
+	start(msg: string): void {
+		this.starts.push(msg);
+	}
+
+	stop(msg: string): void {
+		this.stops.push(msg);
+	}
+}
+
+export class FakeConfirm implements Confirm {
+	readonly calls: Array<string> = [];
+	#handler: (message: string) => boolean;
+
+	constructor(handler: (message: string) => boolean = () => true) {
+		this.#handler = handler;
+	}
+
+	async run(message: string): Promise<boolean> {
+		this.calls.push(message);
+		return this.#handler(message);
+	}
+}
+
+export class FakeErrorHandler implements ErrorHandler {
+	readonly errors: Array<unknown> = [];
+
+	onError(error: unknown): void {
+		this.errors.push(error);
+	}
+}
+
+export class FakeFetcher implements Fetcher {
+	readonly urls: Array<string> = [];
+	#handler: (url: string) => Buffer;
+
+	constructor(
+		handler: (url: string) => Buffer = () => Buffer.from("font-bytes"),
+	) {
+		this.#handler = handler;
+	}
+
+	async fetch(url: string): Promise<Buffer> {
+		this.urls.push(url);
+		return this.#handler(url);
+	}
+}
+
+type ResolveResult = Awaited<ReturnType<FontsManager["resolve"]>>;
+
+/**
+ * FontsManager fake. Defaults return an empty family list and resolve to no
+ * fonts; pass handlers to drive a specific flow. Records every `resolve` call
+ * so tests can assert which family/properties were chosen.
+ */
+export class FakeFontsManager implements FontsManager {
+	readonly resolveCalls: Array<{
+		family: MinimalFamily;
+		properties: FamilyProperties;
+	}> = [];
+	#families: Array<MinimalFamily>;
+	#suggestions: (family: MinimalFamily) => FamilySuggestions | undefined;
+	#resolve: (
+		family: MinimalFamily,
+		properties: FamilyProperties,
+	) => ResolveResult;
+
+	constructor(
+		options: {
+			families?: Array<MinimalFamily>;
+			suggestions?:
+				| FamilySuggestions
+				| undefined
+				| ((family: MinimalFamily) => FamilySuggestions | undefined);
+			resolve?: (
+				family: MinimalFamily,
+				properties: FamilyProperties,
+			) => ResolveResult;
+		} = {},
+	) {
+		this.#families = options.families ?? [];
+		this.#suggestions =
+			typeof options.suggestions === "function"
+				? options.suggestions
+				: () => options.suggestions as FamilySuggestions | undefined;
+		this.#resolve =
+			options.resolve ?? (() => ({ fonts: [], fallbacks: undefined }));
+	}
+
+	async list(): Promise<Array<MinimalFamily>> {
+		return this.#families;
+	}
+
+	async getSuggestions(
+		family: MinimalFamily,
+	): Promise<FamilySuggestions | undefined> {
+		return this.#suggestions(family);
+	}
+
+	async resolve(
+		family: MinimalFamily,
+		properties: FamilyProperties,
+	): Promise<ResolveResult> {
+		this.resolveCalls.push({ family, properties });
+		return this.#resolve(family, properties);
 	}
 }
 

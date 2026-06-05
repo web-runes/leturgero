@@ -10,8 +10,6 @@ import { args as selectFamilyArgs } from "./core/select-family.js";
 import { args as selectPathsArgs } from "./core/select-paths.js";
 import { args as selectPropertiesArgs } from "./core/select-properties.js";
 
-// TODO: tests
-
 const EXAMPLES: Record<string, string> = {
 	"As an agent, start with no flags and let yourself be guided": `npx ${pkg.name}`,
 	"Using npm": `npx ${pkg.name}`,
@@ -60,6 +58,7 @@ const main = define({
 			{ UnifontFontsManager },
 			{ ClackConfirm },
 			{ NodeFilesystem },
+			{ NodeFetcher },
 		] = await Promise.all([
 			import("./commands/main.js"),
 			import("./infra/clack-autocomplete.js"),
@@ -75,6 +74,7 @@ const main = define({
 			import("./infra/unifont-fonts-manager.js"),
 			import("./infra/clack-confirm.js"),
 			import("./infra/node-filesystem.js"),
+			import("./infra/node-fetcher.js"),
 		]);
 
 		const outroMessage = `Thanks for using our tool! We'd love your feedback: ${styleText("blue", "https://github.com/web-runes/leturgero/issues")}`;
@@ -103,6 +103,7 @@ const main = define({
 			createSearch: (items, keys) => new FuseSearch(items, keys),
 			createConfirm: () => new ClackConfirm({ force: isAgent }),
 			filesystem: new NodeFilesystem(),
+			fetcher: new NodeFetcher(),
 			intro: async () => {
 				if (isAgent) return;
 				intro(

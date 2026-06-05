@@ -1,4 +1,5 @@
 import { lstat, mkdir, writeFile } from "node:fs/promises";
+import { isAbsolute } from "node:path";
 import type { Filesystem } from "../types.js";
 
 export class NodeFilesystem implements Filesystem {
@@ -12,6 +13,7 @@ export class NodeFilesystem implements Filesystem {
 
 	async isDirectory(path: string | undefined): Promise<string | undefined> {
 		if (!path) return;
+		if (!isAbsolute(path)) return "Must be an absolute path";
 		try {
 			const stats = await lstat(path);
 			if (!stats.isDirectory()) {

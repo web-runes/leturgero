@@ -48,7 +48,7 @@ export async function validateSelectPathsArgs(
 	const publicDirError = await options.filesystem.isDirectory(values.publicDir);
 	if (publicDirError)
 		throw new ShortCircuit({ type: "error", error: publicDirError });
-	const publicFontsDirError = validateFontsDir(values.publicDir);
+	const publicFontsDirError = validateFontsDir(values.publicFontsDir);
 	if (publicFontsDirError)
 		throw new ShortCircuit({ type: "error", error: publicFontsDirError });
 	const stylesDirError = await options.filesystem.isDirectory(values.stylesDir);

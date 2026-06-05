@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { FontFaceData, RemoteFontSource } from "unifont";
 import { proxySources } from "../../dist/core/proxy-sources.js";
-import { assertShortCircuit, FakeHasher, FakeProgress } from "../helpers.ts";
+import {
+	assertShortCircuit,
+	FakeFetcher,
+	FakeHasher,
+	FakeProgress,
+} from "../helpers.ts";
 
 function baseOptions(
 	overrides: Partial<Parameters<typeof proxySources>[0]> = {},
@@ -15,7 +20,7 @@ function baseOptions(
 		publicDir: "/proj/public",
 		publicFontsDir: "fonts",
 		createProgress: () => progress,
-		fetch: async () => Buffer.from("font-bytes"),
+		fetcher: new FakeFetcher(),
 		...overrides,
 	};
 }
@@ -36,7 +41,7 @@ describe("proxySources", () => {
 		const result = await proxySources(
 			baseOptions({
 				fonts,
-				fetch: async () => Buffer.from("font-bytes"),
+				fetcher: new FakeFetcher(() => Buffer.from("font-bytes")),
 			}),
 		);
 
@@ -109,9 +114,9 @@ describe("proxySources", () => {
 					baseOptions({
 						fonts,
 						createProgress: () => progress,
-						fetch: async () => {
+						fetcher: new FakeFetcher(() => {
 							throw new Error("network down");
-						},
+						}),
 					}),
 				),
 			{ type: "cancel" },

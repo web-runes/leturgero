@@ -28,6 +28,7 @@ import type {
 	Confirm,
 	DirectoryPicker,
 	ErrorHandler,
+	Fetcher,
 	Filesystem,
 	FontsManager,
 	Hasher,
@@ -63,6 +64,7 @@ interface Options {
 	intro: () => Promise<void>;
 	outro: () => void;
 	filesystem: Filesystem;
+	fetcher: Fetcher;
 }
 
 export async function mainImpl(options: Options): Promise<void> {
@@ -148,10 +150,7 @@ export async function mainImpl(options: Options): Promise<void> {
 			publicFontsDir: paths.publicFontsDir,
 			hasher: options.hasher,
 			createProgress: () => options.createProgress(total),
-			fetch: (url) =>
-				fetch(url)
-					.then((res) => res.arrayBuffer())
-					.then((e) => Buffer.from(e)),
+			fetcher: options.fetcher,
 		});
 
 		fonts = proxyResult.fonts;
