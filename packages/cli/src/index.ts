@@ -10,10 +10,10 @@ import { args as selectFamilyArgs } from "./core/select-family.js";
 import { args as selectPathsArgs } from "./core/select-paths.js";
 import { args as selectPropertiesArgs } from "./core/select-properties.js";
 
-// TODO: test flow as agent
 // TODO: tests
 
 const EXAMPLES: Record<string, string> = {
+	"As an agent, start with no flags and let yourself be guided": `npx ${pkg.name}`,
 	"Using npm": `npx ${pkg.name}`,
 	"Using pnpm": `pnpx ${pkg.name}`,
 	"Using yarn": `yarn dlx ${pkg.name}`,

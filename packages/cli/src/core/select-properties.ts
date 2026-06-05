@@ -179,7 +179,7 @@ export async function selectProperties(
 		options.isAgent &&
 		(!options.args.weights || !options.args.styles || !options.args.formats)
 	) {
-		options.logger.warn(argsToHelpMessage(args, ["subsets"]));
+		options.logger.warn(argsToHelpMessage(args, { optional: ["subsets"] }));
 		if (!options.suggestions) {
 			options.logger.warn(
 				"Suggestions could not be retrieved, some properties may not be available",

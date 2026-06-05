@@ -62,7 +62,7 @@ export function normalizeGunshiArgs<
 
 export function argsToHelpMessage<T extends ArgsConstraint>(
 	args: T,
-	_optional: Array<keyof T> = [],
+	{ optional: _optional = [] }: { optional?: Array<keyof T> } = {},
 ): string {
 	let msg = "Following flags must be set: ";
 	const required: Array<string> = [];
@@ -81,7 +81,7 @@ export function argsToHelpMessage<T extends ArgsConstraint>(
 		msg += ` (optional: ${optional.map((e) => `--${e}`).join(", ")})`;
 	}
 	msg +=
-		". Run the command again with --help to know the prerequisites for each.";
+		". Ask the user what they want for these flags. Run the command again with --help to know the prerequisites for each. Only add thee flags. If you already had flags, keep them";
 
 	return msg;
 }
