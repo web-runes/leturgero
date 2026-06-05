@@ -61,7 +61,7 @@ function msg(word: string, suggestions: boolean): string {
 	return message;
 }
 
-export const DEFAULT_PROPERTIES = {
+const DEFAULT_PROPERTIES = {
 	weights: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 	styles: ["normal", "italic"],
 	formats: ["woff2", "woff"],
@@ -80,6 +80,7 @@ function isFontFormat(format: string): format is FontFormat {
 }
 
 function validateArray<T extends string>(
+	name: string,
 	elements: Array<string> | undefined,
 	cb: (element: string) => { valid: T } | { invalid: string },
 ): { valid: Array<T> | undefined } | { invalid: string } {
@@ -97,7 +98,7 @@ function validateArray<T extends string>(
 	}
 
 	if (invalid.size > 0) {
-		throw new Error(`Invalid values: ${[...invalid].join(", ")}`);
+		throw new Error(`Invalid ${name}: ${[...invalid].join(", ")}`);
 	}
 
 	return { valid: valid.size > 0 ? [...valid] : undefined };
@@ -117,7 +118,7 @@ export function validateSelectPropertiesArgs(
 	values: InferArgs<typeof args>,
 ): Options["args"] {
 	const weights = shortCircuitInvalid(
-		validateArray<string>(values.weights, (rawWeight) => {
+		validateArray<string>("weights", values.weights, (rawWeight) => {
 			if (rawWeight.includes(" ")) {
 				const parts = rawWeight.split(" ");
 				if (parts.length !== 2) {
@@ -144,7 +145,7 @@ export function validateSelectPropertiesArgs(
 	);
 
 	const styles = shortCircuitInvalid(
-		validateArray<FontStyles>(values.styles, (style) => {
+		validateArray<FontStyles>("styles", values.styles, (style) => {
 			if (isFontStyle(style)) {
 				return { valid: style };
 			} else {
@@ -154,7 +155,7 @@ export function validateSelectPropertiesArgs(
 	);
 
 	const formats = shortCircuitInvalid(
-		validateArray<FontFormat>(values.formats, (format) => {
+		validateArray<FontFormat>("formats", values.formats, (format) => {
 			if (isFontFormat(format)) {
 				return { valid: format };
 			} else {

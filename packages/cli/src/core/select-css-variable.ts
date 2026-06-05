@@ -11,8 +11,11 @@ export const args = {
 	cssVariable: {
 		cliName: "css-variable",
 		type: "string",
-		description:
-			"CSS variable name to use in the emitted CSS file. Must start with -- and be a valid CSS ident: it can only contain letters, digits, hyphens and underscores",
+		description: [
+			"CSS variable name to use in the emitted CSS file.",
+			"Must start with -- and be a valid CSS ident: it can only contain letters, digits, hyphens and underscores.",
+			"Converting the font family name to kebab case is an easy way to do it",
+		].join(" "),
 	},
 } as const satisfies ArgsConstraint;
 
@@ -40,8 +43,11 @@ export function validateSelectCssVariableArgs(values: Options["args"]) {
 }
 
 export async function selectCssVariable(options: Options): Promise<string> {
+	const initialValue = `--font-${kebabize(options.family)}`;
+
 	if (options.isAgent && !options.args.cssVariable) {
 		options.logger.warn(argsToHelpMessage(args));
+		options.logger.step(`Suggestion: ${initialValue}`);
 		throw new ShortCircuit({ type: "silent" });
 	}
 
@@ -49,7 +55,7 @@ export async function selectCssVariable(options: Options): Promise<string> {
 		options.args.cssVariable ??
 		(await options.text.run({
 			message: "What name would you like to use for the CSS variable?",
-			initialValue: `--font-${kebabize(options.family)}`,
+			initialValue,
 			validate(value) {
 				if (!value) return "Please enter a value";
 				return validate(value);

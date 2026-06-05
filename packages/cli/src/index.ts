@@ -11,7 +11,6 @@ import { args as selectPathsArgs } from "./core/select-paths.js";
 import { args as selectPropertiesArgs } from "./core/select-properties.js";
 
 // TODO: test flow as agent
-// TODO: review all texts again
 // TODO: tests
 
 const EXAMPLES: Record<string, string> = {

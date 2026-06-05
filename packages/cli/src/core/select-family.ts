@@ -12,7 +12,7 @@ export const args = {
 	fontFamily: {
 		cliName: "font-family",
 		type: "string",
-		description: `The font family to use. If the exact provided value cannot be found, ${MAX} potential matches will be returned`,
+		description: `The font family to use. If the exact provided value cannot be found, up to ${MAX} matches will be returned`,
 	},
 } as const satisfies ArgsConstraint;
 
@@ -38,7 +38,7 @@ export async function selectFamily(options: Options): Promise<MinimalFamily> {
 
 		const items = options.search.search(options.args.fontFamily).slice(0, MAX);
 		options.logger.warn(
-			`No exact match found for --${args.fontFamily.cliName}. Retry with a valid family`,
+			`No exact match found for --${args.fontFamily.cliName}. Retry with a valid font family name`,
 		);
 		options.logger.step(
 			`Available families (top ${MAX} matches): ${items.map((e) => e.name).join(", ")}`,

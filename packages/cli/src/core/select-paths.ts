@@ -38,7 +38,7 @@ interface Options {
 function validateFontsDir(value: string | undefined): string | undefined {
 	if (!value) return;
 	if (value.match(/[^\x20-\x7E]/g) !== null)
-		return "Invalid non-printable character present!";
+		return "Invalid non-printable character present";
 }
 
 export async function validateSelectPathsArgs(
