@@ -35,6 +35,7 @@ export default defineConfig({
 				// 	label: "Guides",
 				// 	items: [{ autogenerate: { directory: "guides" } }],
 				// },
+				// TODO: import css, preload links, css variables, programmatic access (OG images)
 			],
 			customCss: ["./src/styles/custom.css"],
 			components: {

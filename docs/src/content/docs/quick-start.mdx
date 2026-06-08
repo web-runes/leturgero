@@ -3,98 +3,33 @@ title: Quick start
 ---
 
 import PackageManagerTabs from "../../components/PackageManagerTabs.astro"
-import { Steps, Tabs, TabItem } from "@astrojs/starlight/components"
 
-This guide gets you from zero to a running Vite Deploy dev server. Pick [New project](#new-project) to scaffold a starter for your host, or [Existing project](#existing-project) if you already have a Vite app.
+This guide gets you started with the Leturgerð CLI.
 
-## New project
+## Using the CLI
 
-<Steps>
+In your terminal, execute the CLI using your preferred package manager in your project directory:
 
-1. Download a basic template for your favorite host:
+<PackageManagerTabs>
+  <Fragment slot="npm">
+    ```sh
+    npx @leturgero/cli@latest
+    ```
+  </Fragment>
+  <Fragment slot="pnpm">
+    ```sh
+    pnpx @leturgero/cli@latest
+    ```
+  </Fragment>
+  <Fragment slot="yarn">
+    ```sh
+    yarn @leturgero/cli@latest
+    ```
+  </Fragment>
+</PackageManagerTabs>
 
-    <Tabs>
-      <TabItem label="Cloudflare" icon="cloudflare">
-        ```sh
-        npx giget@latest gh:web-runes/vite-deploy/examples/cloudflare-server
-        ```
-      </TabItem>
-      <TabItem label="Netlify" icon="netlify">
-        ```sh
-        npx giget@latest gh:web-runes/vite-deploy/examples/netlify-server
-        ```
-      </TabItem>
-      <TabItem label="Node" icon="node">
-        ```sh
-        npx giget@latest gh:web-runes/vite-deploy/examples/node-server
-        ```
-      </TabItem>
-      <TabItem label="Vercel" icon="vercel">
-        ```sh
-        npx giget@latest gh:web-runes/vite-deploy/examples/vercel-server
-        ```
-      </TabItem>
-    </Tabs>
-
-2. Install dependencies:
-
-    <PackageManagerTabs>
-      <Fragment slot="npm">
-        ```sh
-        npm install
-        ```
-      </Fragment>
-      <Fragment slot="pnpm">
-        ```sh
-        pnpm install
-        ```
-      </Fragment>
-      <Fragment slot="yarn">
-        ```sh
-        yarn install
-        ```
-      </Fragment>
-    </PackageManagerTabs>
-
-3. Start the development server:
-
-    <PackageManagerTabs>
-      <Fragment slot="npm">
-        ```sh
-        npm run dev
-        ```
-      </Fragment>
-      <Fragment slot="pnpm">
-        ```sh
-        pnpm dev
-        ```
-      </Fragment>
-      <Fragment slot="yarn">
-        ```sh
-        yarn dev
-        ```
-      </Fragment>
-    </PackageManagerTabs>
-
-</Steps>
-
-## Existing project
-
-Already have a Vite project? Each adapter ships a manual install guide that walks through adding it to an existing config:
-
-- [Cloudflare](/adapters/cloudflare/#manual-install)
-- [Netlify](/adapters/netlify/#manual-install)
-- [Node](/adapters/node/#manual-install)
-- [Vercel](/adapters/vercel/#manual-install)
+That's it! The CLI will guide you (or your agent) through.
 
 ## Next steps
 
-Once your dev server is running:
-
-- Pick an [output mode](/outputs/) (static, server, or hybrid) depending on whether you want SSG, SSR, or both.
-- Follow the [deployment guide](/deploy/) for your host to ship to production.
-- Browse the [integration guides](/integrate-with/) to wire Vite Deploy up with Hono, Express, or TanStack Start.
-
-## Examples
-
-We have a few examples you can check out [on GitHub](https://github.com/web-runes/vite-deploy/tree/main/examples).
+Once you're done with the CLI, follow our guides on how to hook fonts in your project. TODO: link
