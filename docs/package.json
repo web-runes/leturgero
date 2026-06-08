@@ -1,0 +1,22 @@
+{
+	"name": "docs",
+	"type": "module",
+	"private": true,
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "astro dev",
+		"start": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"astro": "astro"
+	},
+	"dependencies": {
+		"@astrojs/starlight": "^0.39.2",
+		"@catppuccin/starlight": "^2.0.1",
+		"astro": "^6.3.7",
+		"sharp": "^0.34.5"
+	},
+	"devDependencies": {
+		"starlight-links-validator": "^0.24.0"
+	}
+}
