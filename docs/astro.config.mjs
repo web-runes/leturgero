@@ -62,10 +62,10 @@ export default defineConfig({
 	],
 	fonts: [
 		{
-			name: "Gambarino",
-			cssVariable: "--font-gambarino",
-			provider: fontProviders.fontshare(),
-			weights: ["400"],
+			name: "Source Serif Pro",
+			cssVariable: "--font-source-serif-pro",
+			provider: fontProviders.fontsource(),
+			weights: ["600"],
 			styles: ["normal"],
 			subsets: ["latin"],
 			fallbacks: ["serif"],

@@ -5,14 +5,12 @@
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: var(--font-gambarino);
-	letter-spacing: 0.025em;
+	font-family: var(--font-source-serif-pro);
 }
 
 .site-title {
-	font-family: var(--font-gambarino);
+	font-family: var(--font-source-serif-pro);
 	font-size: var(--sl-text-3xl);
-	letter-spacing: 0.025em;
 } 
 
 .pagination-links > a {
@@ -24,9 +22,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .sidebar-content summary .large {
-	font-family: var(--font-gambarino);
+	font-family: var(--font-source-serif-pro);
 	font-size: var(--sl-text-lg);
-	letter-spacing: 0.025em;
 }
 
 .sidebar-content li a[aria-current="page"] {
