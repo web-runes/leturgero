@@ -4,14 +4,19 @@
 	font-variant-ligatures: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
 	font-family: var(--font-source-serif-pro);
 }
 
 .site-title {
 	font-family: var(--font-source-serif-pro);
 	font-size: var(--sl-text-3xl);
-} 
+}
 
 .pagination-links > a {
 	box-shadow: none;
