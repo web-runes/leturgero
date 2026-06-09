@@ -2,32 +2,25 @@
 title: Philosophy
 ---
 
-TODO:
+For the past few years, I ([Florian Lefebvre](https://github.com/florian-lefebvre)) have worked quite a lot on fonts. I made [Astro's Fonts API](https://docs.astro.build/en/guides/fonts/), which released as stable in Astro 6.0. It is heavily inspired by [Nuxt's Fonts module](https://fonts.nuxt.com/) and [Next.js fonts optimization](https://nextjs.org/docs/app/getting-started/fonts).
 
-- made astro fonts, similar to next.js and nuxt (link to comparison?)
-- wanted a way to allow all frameworks to use it
-- a different take on the fonts problem
-- you own the files so you can do anything (one drawback of packages is they abstract a bit too much)
-- privacy using self hosting
-- do it once
-- optimized: guides, automatic fallback generation (upcoming)
+While working on it, I made sure to decouple it from Astro internally. I wanted to allow other frameworks to benefit from it, for example as a [Vite](https://vite.dev/) plugin.
 
-**Vite Deploy** is the primitive to **deploy your Vite project anywhere**, no matter if it's meant to be rendered statically (SSG), on-demand (SSR) or both.
+But thinking deeper about fonts optimization in web projects, I realized something: I never questioned whether having it as a package was the best way to do it. And if you read this now, that means I think there's a better way.
 
-## Features
+The package approach comes with the following downsides:
 
-**Vite Deploy is a primitive.** It does very few things but very well:
+- It only works for a given ecosystem or tool: Astro, Next.js, Nuxt, Vite...it would need to be completely redone for other ecosystems such as Laravel or Rails
+- The abstraction, even if thin, makes it complicated for more advanced usecases: granular preloads, programmatic access for OG image generation
 
-- [**Deploy anywhere**](/deploy/): no matter where you're hosting your site, we got you covered.
-- [**Prerendering**](/outputs/): render your site statically (SSG), on-demand (SSR) or both.
-- [**Integrate with other tools**](/integrate-with/): use your favorite web framework and tools.
+So given all that, I thought about a different take on this problem: what if, inspired by [`shadcn/ui`](https://ui.shadcn.com/), **you used a CLI to download the files once and then they'd be yours?**
 
-## Design principles
+This is the best of both worlds:
 
-Here are 3 core design principles to help explain why we built Vite Deploy, the problems that it exists to solve, and why Vite Deploy may be the best choice for your project or team.
+- Just like for packages, you get to pick which files you want (family, weights, styles, formats, subsets..)
+- The files are download (self hosting), which ensure your users' privacy
+- You get the fallbacks optimization, if you want it (coming soon)
+- The files are yours, you can do anything: only preload these specific files, read the font files to use them with [Takumi](https://takumi.kane.tw/)...
+- You can use it with any tool, it's just font and CSS files
 
-Vite Deploy is...
-
-1. **Transparent**: no codegen, no hidden CLI, no private state. Each adapter is a Vite plugin and your handler is just a module Vite builds: easy to debug and easy to contribute to.
-2. **Focused**: one package per host. You install `@vite-deploy/cloudflare` or `@vite-deploy/netlify`, not a megapackage that ships every platform's code. Smaller footprint, fewer abstractions, and the option set stays specific to the platform you actually target.
-3. **Easy to use and integrate**: the handler is a standard `fetch` function (or a Node-style handler for the Node adapter). No Vite Deploy-specific runtime to learn, no framework lock-in: it works with Hono, Express, TanStack Start and more.
+Give it a try!

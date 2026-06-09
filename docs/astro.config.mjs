@@ -29,13 +29,12 @@ export default defineConfig({
 			sidebar: [
 				{
 					label: "Getting started",
-					items: ["quick-start", "philosophy", "comparison"],
+					items: ["quick-start", "philosophy", "usage"],
 				},
-				// {
-				// 	label: "Guides",
-				// 	items: [{ autogenerate: { directory: "guides" } }],
-				// },
-				// TODO: import css, preload links, css variables, programmatic access (OG images)
+				{
+					label: "Reference",
+					items: [{ autogenerate: { directory: "reference" } }],
+				},
 			],
 			customCss: ["./src/styles/custom.css"],
 			components: {
