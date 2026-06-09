@@ -74,7 +74,7 @@ export default defineConfig({
 			name: "Switzer",
 			cssVariable: "--font-switzer",
 			provider: fontProviders.fontshare(),
-			weights: ["100 900"],
+			weights: ["400", "600", "700"],
 			styles: ["normal"],
 			subsets: ["latin"],
 			fallbacks: ["sans-serif"],

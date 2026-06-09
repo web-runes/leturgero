@@ -5,5 +5,5 @@ import Default from "@astrojs/starlight/components/Head.astro";
 
 <Default />
 <Font cssVariable="--font-source-serif-pro" preload />
-<Font cssVariable="--font-switzer" preload />
-<Font cssVariable="--font-ibm-plex-mono" preload />
+<Font cssVariable="--font-switzer" preload={[{ weight: 400 }]} />
+<Font cssVariable="--font-ibm-plex-mono" />
