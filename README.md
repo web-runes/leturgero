@@ -1,5 +1,7 @@
 # Leturgerð
 
+> "Font" in Icelandic
+
 Web fonts, made simple. Pick a font family, its properties and download it. Hook it up in your project and you're good to go.
 
 To get started, visit [the documentation](https://leturgero.web-runes.dev/).
