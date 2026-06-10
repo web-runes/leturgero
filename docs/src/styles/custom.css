@@ -26,7 +26,7 @@ h6 {
 	--sl-line-height-headings: 1;
 }
 
-.sidebar-content summary .large {
+.sidebar-content .large {
 	font-family: var(--font-source-serif-pro);
 	font-size: var(--sl-text-lg);
 }

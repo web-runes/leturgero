@@ -27,9 +27,10 @@ export default defineConfig({
 				},
 			],
 			sidebar: [
+				"prologue",
 				{
 					label: "Getting started",
-					items: ["quick-start", "philosophy", "usage"],
+					items: ["quick-start", "usage"],
 				},
 				{
 					label: "Reference",
