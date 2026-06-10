@@ -36,13 +36,13 @@
 	"homepage": "https://leturgero.web-runes.dev",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^25.6.0",
-		"@typescript/native-preview": "7.0.0-dev.20260503.1"
+		"@types/node": "^25.9.2",
+		"@typescript/native-preview": "7.0.0-dev.20260609.1"
 	},
 	"dependencies": {
-		"@clack/prompts": "^1.4.0",
-		"fuse.js": "^7.3.0",
-		"gunshi": "~0.32.0",
+		"@clack/prompts": "^1.5.1",
+		"fuse.js": "^7.4.2",
+		"gunshi": "~0.33.0",
 		"unifont": "~0.7.4"
 	}
 }
