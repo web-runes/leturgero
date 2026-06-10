@@ -1,3 +1,11 @@
-# leturgero
+# Leturgerð
 
-logo made with https://patorjk.com/software/taag/#p=display&f=ANSI+Shadow&t=leturgero&x=none&v=4&h=4&w=80&we=false
+Web fonts, made simple. Pick a font family, its properties and download it. Hook it up in your project and you're good to go.
+
+# Vite Deploy
+
+To get started, visit [the documentation](https://leturgero.web-runes.dev/).
+
+## Licensing
+
+[MIT Licensed](./LICENSE). Made with ❤️ by [Florian Lefebvre](https://github.com/florian-lefebvre).
