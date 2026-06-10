@@ -11,14 +11,14 @@ But thinking deeper about fonts optimization in web projects, I realized somethi
 The package approach comes with the following downsides:
 
 - It only works for a given ecosystem or tool: Astro, Next.js, Nuxt, Vite...it would need to be completely redone for other ecosystems such as Laravel or Rails
-- The abstraction, even if thin, makes it complicated for more advanced usecases: granular preloads, programmatic access for OG image generation
+- The abstraction, even if thin, makes it complicated for more advanced use cases: granular preloads, programmatic access for OG image generation
 
 So given all that, I thought about a different take on this problem: what if, inspired by [`shadcn/ui`](https://ui.shadcn.com/), **you used a CLI to download the files once and then they'd be yours?**
 
 This is the best of both worlds:
 
 - Just like for packages, you get to pick which files you want (family, weights, styles, formats, subsets..)
-- The files are download (self hosting), which ensure your users' privacy
+- The files are downloaded (self hosting), which ensures your users' privacy
 - You get the fallbacks optimization, if you want it (coming soon)
 - The files are yours, you can do anything: only preload these specific files, read the font files to use them with [Takumi](https://takumi.kane.tw/)...
 - You can use it with any tool, it's just font and CSS files

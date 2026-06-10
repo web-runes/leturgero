@@ -2,15 +2,27 @@
 title: Usage
 ---
 
-import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem, FileTree } from '@astrojs/starlight/components';
+
+Once you've [run the CLI](/quick-start/), your project contains the downloaded font files and a CSS file. With the default answers (a `public` directory, `./fonts` for fonts, `src/styles` for CSS, and `--font-inter` as the variable), you'll have:
+
+<FileTree>
+- public/fonts
+  - font-inter-400-normal-latin.hash.woff2
+  - font-inter-700-normal-latin.hash.woff2
+- src/styles
+  - font-inter.css
+</FileTree>
+
+These files are yours now, commit them like any other source file. This guide covers how to hook them up in your project.
 
 ## Applying custom fonts
 
-After a [font is configured](/quick-start/#using-the-cli), the generated CSS file must be added to your page head. Then, you can use this variable when defining your page styles.
+The generated CSS file must be added to your page head. Then, you can use the generated CSS variable (e.g. `--font-inter`) when defining your page styles.
 
 <Steps>
 
-1. Use generated CSS file in the head of your page. This depends on the the tool you use. For example using Astro:
+1. Use generated CSS file in the head of your page. This depends on the tool you use. For example using Astro:
 
     <Tabs>
         <TabItem label="Inline">
@@ -100,9 +112,9 @@ import styles from "../styles/font-inter.css?inline";
 
 ## Register fonts in Tailwind
 
-If you are using [Tailwind](https://tailwindcss.com/) for styling, you will not apply your styles with the `font-face` CSS property.
+If you are using [Tailwind](https://tailwindcss.com/) for styling, you will not apply the font with the `font-family` property directly. Instead, you register it with Tailwind.
 
-Instead, after [configuring your custom font](/quick-start/#using-the-cli) and [adding it to your page head](#applying-custom-fonts), you will need to update your Tailwind configuration to register your font:
+Instead, after [configuring your custom font](/quick-start/) and [adding it to your page head](#applying-custom-fonts), you will need to update your Tailwind configuration to register your font:
 
     <Tabs>
 
@@ -151,7 +163,7 @@ Font files should be cached for better performance. The file name contains a has
 
 ## OpenGraph image generation
 
-Since you own the files, advanced usecases can easily be achieved. For example, OpenGraph image generation:
+Since you own the files, advanced use cases can easily be achieved. For example, OpenGraph image generation:
 
 ```tsx title="src/pages/og.png.ts"
 import type { APIRoute } from "astro";
@@ -170,7 +182,7 @@ export const GET: APIRoute = async (context) => {
       height: 400,
       fonts: [
         {
-          name: "Roboto",
+          name: "Inter",
           data,
           weight: 400,
           style: "normal",

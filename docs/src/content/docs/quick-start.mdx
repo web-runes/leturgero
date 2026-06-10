@@ -4,11 +4,7 @@ title: Quick start
 
 import PackageManagerTabs from "../../components/PackageManagerTabs.astro"
 
-This guide gets you started with the Leturgerð CLI.
-
-## Using the CLI
-
-In your terminal, execute the CLI using your preferred package manager in your project directory:
+Getting started takes a single command. From your project directory, run the Leturgerð CLI with your preferred package manager:
 
 <PackageManagerTabs>
   <Fragment slot="npm">
@@ -23,13 +19,11 @@ In your terminal, execute the CLI using your preferred package manager in your p
   </Fragment>
   <Fragment slot="yarn">
     ```sh
-    yarn @leturgero/cli@latest
+    yarn dlx @leturgero/cli@latest
     ```
   </Fragment>
 </PackageManagerTabs>
 
-That's it! The CLI will guide you (or your agent) through.
+That's it! With no arguments, the CLI guides you (or your agent) through every choice: where to save assets, the font family, its weights, styles, subsets and formats, and the name of the CSS variable to generate. You can skip any prompt by passing the matching [flag](/reference/cli/).
 
-## Next steps
-
-Once you're done with the CLI, follow our guides on how to hook fonts in your project.
+When it finishes, the CLI has written the font files and a CSS file into your project, and points you to the [Usage](/usage/) guide to hook them up.

@@ -81,7 +81,7 @@ export function argsToHelpMessage<T extends ArgsConstraint>(
 		msg += ` (optional: ${optional.map((e) => `--${e}`).join(", ")})`;
 	}
 	msg +=
-		". Ask the user what they want for these flags. Run the command again with --help to know the prerequisites for each. Only add thee flags. If you already had flags, keep them";
+		". Ask the user what they want for these flags. Run the command again with --help to know the prerequisites for each. Only add these flags. If you already had flags, keep them";
 
 	return msg;
 }
