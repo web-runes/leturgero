@@ -154,7 +154,7 @@ describe("selectProperties (interactive mode)", () => {
 			args: EMPTY_ARGS,
 		});
 
-		// weights, styles, formats — but not subsets (no suggestions for them).
+		// weights, styles, formats but not subsets (no suggestions for them).
 		assert.equal(multiselect.calls.length, 3);
 		assert.deepEqual(result.weights, [
 			"100",

@@ -1,0 +1,188 @@
+---
+title: CLI reference
+description: A reference of the flags and options available in the Leturgerð CLI.
+---
+
+import PackageManagerTabs from "../../../components/PackageManagerTabs.astro"
+
+The Leturgerð CLI downloads a font family, saves the font files and generated CSS to your project, and is the only thing you need to start using self-hosted fonts.
+
+It exposes a single, default command: there are no subcommands. Run it with no arguments to be guided interactively, or pass [flags](#flags) to skip the prompts.
+
+## How to run
+
+Execute the CLI from your project directory using your preferred package manager:
+
+<PackageManagerTabs>
+  <Fragment slot="npm">
+    ```sh
+    npx @leturgero/cli@latest
+    ```
+  </Fragment>
+  <Fragment slot="pnpm">
+    ```sh
+    pnpx @leturgero/cli@latest
+    ```
+  </Fragment>
+  <Fragment slot="yarn">
+    ```sh
+    yarn dlx @leturgero/cli@latest
+    ```
+  </Fragment>
+</PackageManagerTabs>
+
+When run without flags, the CLI walks you through every choice: where to save assets, which font family to use, which weights, styles, subsets and formats to download, and the name of the CSS variable to generate.
+
+<details>
+<summary>See a full example run</summary>
+
+```ansi frame="terminal"
+◇  Initialized
+│
+◇  Where are your static assets saved? (e.g. public)
+│  public
+│
+◇  Where would you like font files to be saved inside it? (e.g. fonts)
+│  ./fonts
+│
+◇  Where would you like CSS to be saved? (e.g. src/styles)
+│  src/styles
+│
+◇  What font family would you like to use? 1768 are available.
+│  Inter
+│
+◇  What weights would you like to use?
+│  400, 700
+│
+◇  What styles would you like to use?
+│  normal
+│
+◇  What subsets would you like to use?
+│  latin
+│
+◇  What formats would you like to use?
+│  woff2
+│
+◇  Retrieved
+│
+◇  What name would you like to use for the CSS variable?
+│  --font-inter
+│
+◇  2 files will be downloaded. Do you want to continue?
+│  Yes
+│
+◇  Downloaded
+│
+◇  Saved 2 font files to disk
+│
+◇  Saved font-inter.css to disk
+│
+◇  Next steps ──────────────╮
+│                           │
+│  Now that you have font   │
+│  and CSS files, hook      │
+│  them up in your project. │
+│                           │
+├───────────────────────────╯
+```
+
+</details>
+
+Any choice you provide as a flag is used as-is and its prompt is skipped, so you can run the CLI fully non-interactively by passing every flag.
+
+```sh
+# Skip a couple of prompts
+npx @leturgero/cli@latest --font-family "Inter Tight" --weights "400,500"
+```
+
+```sh
+# Skip every prompt
+npx @leturgero/cli@latest \
+  --public-dir /foo/bar/public/ \
+  --public-fonts-dir ./fonts \
+  --styles-dir /foo/bar/src/styles/ \
+  --font-family "Inter" \
+  --weights "300,400" \
+  --styles "normal,italic" \
+  --formats "woff2,woff" \
+  --subsets latin \
+  --css-variable "--font-inter"
+```
+
+## Flags
+
+Flags let you customize the behavior of the CLI. Pass any of them to override the corresponding interactive prompt.
+
+### `--public-dir <path>`
+
+Absolute path to the directory where your static assets are saved (e.g. `public`). Font files are written inside it. The path must point to an existing directory.
+
+### `--public-fonts-dir <path>`
+
+Path, relative to [`--public-dir`](#--public-dir-path), where font files should be saved. Usually `./fonts`.
+
+### `--styles-dir <path>`
+
+Absolute path to the directory where the generated CSS file is saved (e.g. `src/styles`). The path must point to an existing directory.
+
+### `--font-family <name>`
+
+The font family to use, for example `"Inter"`. Wrap names containing spaces in quotes.
+
+If the exact value cannot be found, the CLI returns up to 10 close matches so you can retry with a valid name.
+
+### `--weights <list>`
+
+Comma-separated list of weights to download, for example `"400,500,700"`. Each value must be a valid font weight.
+
+### `--styles <list>`
+
+Comma-separated list of styles to download. Allowed values are `normal`, `italic` and `oblique`, for example `"normal,italic"`.
+
+### `--formats <list>`
+
+Comma-separated list of formats to download. Allowed values are `eot`, `otf`, `ttf`, `woff` and `woff2`, for example `"woff2,woff"`.
+
+### `--subsets <list>`
+
+Comma-separated list of subsets to download, for example `latin`. Not all font families support subsets; when none are available this flag is ignored.
+
+### `--css-variable <name>`
+
+The CSS variable name to use in the generated CSS file, for example `"--font-inter"`.
+
+It must start with `--` and be a valid CSS ident: it can only contain letters, digits, hyphens and underscores. Converting the font family name to kebab case (e.g. `--font-inter-tight`) is an easy way to pick one.
+
+## Global flags
+
+Flags to get information about the CLI.
+
+### `--help` (`-h`)
+
+Print the CLI's help message, including the list of available flags and usage examples, then exit.
+
+### `--version` (`-v`)
+
+Print the installed CLI version, then exit.
+
+## Agent mode
+
+The CLI detects when it is being run by an AI coding agent (such as Claude Code or Cursor) and switches to a non-interactive mode: instead of showing prompts, it expects every choice to be passed as a flag.
+
+When a required flag is missing, the CLI prints which flags are needed along with the available values (font families, weights, styles, subsets and formats) so the agent can re-run the command with the correct arguments. It reports one group of missing flags at a time, so the agent fills them in over a few runs.
+
+For example, after the family is set but its properties are missing, the output is:
+
+```ansi frame="terminal"
+▲  Following flags must be set: --weights, --styles, --formats (optional: --subsets). Ask the user what they want for these flags.
+│
+◇  Weights: 100, 200, 300, 400, 500, 600, 700, 800, 900
+│
+◇  Styles: normal, italic
+│
+◇  Subsets: cyrillic, greek, latin, latin-ext, vietnamese
+│
+◇  Formats: woff2, woff
+```
+
+The agent then re-runs the command with the chosen values added, e.g. `--weights "400,700" --styles normal --formats woff2 --subsets latin`. Running with [`--help`](#--help--h) lists the prerequisites for each flag.

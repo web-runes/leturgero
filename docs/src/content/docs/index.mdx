@@ -1,0 +1,37 @@
+---
+title: Web fonts, made simple
+template: splash
+hero:
+  tagline: Pick a font family, its properties and download it. Hook it up in your project and you're good to go.
+  image:
+    light: ../../assets/logo.svg
+    dark: ../../assets/logo.svg
+  actions:
+    - text: Get started
+      link: /quick-start/
+      icon: rocket
+    - text: GitHub
+      link: https://github.com/web-runes/leturgero
+      icon: github
+      external: true
+      variant: secondary
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+## Features
+
+<CardGrid>
+  <Card title="One command" icon="rocket">
+    Pick a family, its weights, styles and formats, and the CLI downloads everything. Built for humans and AI agents alike.
+  </Card>
+  <Card title="The files are yours" icon="puzzle">
+    No runtime, no lock-in. The output is plain font and CSS files that drop into any framework or stack.
+  </Card>
+  <Card title="Guides for every step" icon="open-book">
+    Hook fonts into your project the right way: inlining, preloading, Tailwind, caching and more. [Read the guides](/usage/).
+  </Card>
+  <Card title="Open source" icon="github">
+    MIT-licensed and community-driven. [Star us, file issues, send PRs](https://github.com/web-runes/leturgero).
+  </Card>
+</CardGrid>

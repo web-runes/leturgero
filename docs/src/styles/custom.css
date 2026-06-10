@@ -1,0 +1,54 @@
+:root {
+	--sl-font: var(--font-switzer);
+	--sl-font-mono: var(--font-ibm-plex-mono);
+	font-variant-ligatures: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-source-serif-pro);
+}
+
+.site-title {
+	font-family: var(--font-source-serif-pro);
+	font-size: var(--sl-text-3xl);
+}
+
+.pagination-links > a {
+	box-shadow: none;
+}
+
+.hero h1 {
+	--sl-line-height-headings: 1;
+}
+
+.sidebar-content summary .large {
+	font-family: var(--font-source-serif-pro);
+	font-size: var(--sl-text-lg);
+}
+
+.sidebar-content li a[aria-current="page"] {
+	background-color: transparent;
+	color: var(--sl-color-text-accent);
+}
+
+.sidebar-content li:has(> a[aria-current="page"]) {
+	--border-width: 3px;
+	border-inline-start: var(--border-width) solid var(--sl-color-text-accent);
+	padding-inline-start: calc(
+		var(--sl-sidebar-item-padding-inline) -
+		var(--border-width)
+	);
+}
+
+starlight-menu-button button {
+	background-color: transparent;
+	color: var(--sl-color-text);
+	font-size: var(--sl-text-2xl);
+	box-shadow: none;
+	padding: 0.25rem;
+}

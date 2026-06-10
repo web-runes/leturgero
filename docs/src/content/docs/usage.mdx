@@ -1,0 +1,205 @@
+---
+title: Usage
+---
+
+import { Steps, Tabs, TabItem, FileTree } from '@astrojs/starlight/components';
+
+Once you've [run the CLI](/quick-start/), your project contains the downloaded font files and a CSS file. With the default answers (a `public` directory, `./fonts` for fonts, `src/styles` for CSS, and `--font-inter` as the variable), you'll have:
+
+<FileTree>
+- public/fonts
+  - font-inter-400-normal-latin.hash.woff2
+  - font-inter-700-normal-latin.hash.woff2
+- src/styles
+  - font-inter.css
+</FileTree>
+
+These files are yours now, commit them like any other source file. This guide covers how to hook them up in your project.
+
+## Applying custom fonts
+
+The generated CSS file must be added to your page head. Then, you can use the generated CSS variable (e.g. `--font-inter`) when defining your page styles.
+
+<Steps>
+
+1. Use generated CSS file in the head of your page. This depends on the tool you use. For example using Astro:
+
+    <Tabs>
+        <TabItem label="Inline">
+        Inlining is recommended to load fonts as soon as possible.
+
+        ```astro title="src/layouts/Layout.astro" ins={2,7}
+        ---
+        import styles from "../styles/font-inter.css?inline";
+        ---
+
+        <html>
+        <head>
+            <style set:html={styles} />
+        </head>
+        <body>
+            <slot />
+        </body>
+        </html>
+        ```
+        </TabItem>
+
+        <TabItem label="Import">
+        Importing may be required in some cases, for example for easier CSP support.
+
+        ```astro title="src/layouts/Layout.astro" ins={2}
+        ---
+        import "../styles/font-inter.css";
+        ---
+
+        <html>
+        <head>
+            <!-- ... -->
+        </head>
+        <body>
+            <slot />
+        </body>
+        </html>
+        ```
+        </TabItem>
+    </Tabs>
+
+2. In any page rendered with this CSS, you can now define styles with your font's CSS variable to apply your custom font.
+
+    In the following example, the `<h1>` heading will have the custom font applied, while the paragraph `<p>` will not.
+
+    ```astro title="src/pages/example.astro" ins={10-12}
+    ---
+    import Layout from "../layouts/Layout.astro";
+    ---
+    <Layout>
+      <h1>In a galaxy far, far away...</h1>
+
+      <p>Custom fonts make my headings much cooler!</p>
+
+      <style>
+      h1 {
+        font-family: var(--font-inter);
+      }
+      </style>
+    </Layout>
+    ```
+
+</Steps>
+
+## Preloading fonts
+
+Font preloading should be done sparingly, as it can block the loading of other important resources or download fonts that are unnecessary for the current page. Consider preloading only the most essential fonts, necessary for displaying content visible above the fold.
+
+To preload a font, add preload links in the head after style tags.
+
+```astro title="src/layouts/Layout.astro" {8,9}
+---
+import styles from "../styles/font-inter.css?inline";
+---
+
+<html>
+  <head>
+    <style set:html={styles} />
+    <link rel="preload" href="/fonts/font-inter-400-normal-latin.hash.woff2" as="font" type="font/woff2" crossorigin="" />
+    <link rel="preload" href="/fonts/font-inter-500-italic-latin.hash.woff2" as="font" type="font/woff2" crossorigin="" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+```
+
+## Register fonts in Tailwind
+
+If you are using [Tailwind](https://tailwindcss.com/) for styling, you will not apply the font with the `font-family` property directly. Instead, you register it with Tailwind.
+
+Instead, after [configuring your custom font](/quick-start/) and [adding it to your page head](#applying-custom-fonts), you will need to update your Tailwind configuration to register your font:
+
+    <Tabs>
+
+    <TabItem label="Tailwind CSS 4.0">
+
+    ```css title="src/styles/global.css" ins={4} ins="inline"
+    @import "tailwindcss";
+
+    @theme inline {
+      --font-sans: var(--font-inter);
+    }
+    ```
+
+    </TabItem>
+
+    <TabItem label="Tailwind CSS 3.0">
+
+    ```js title="tailwind.config.mjs" ins={6-8}
+    /** @type {import("tailwindcss").Config} */
+    export default {
+      content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
+      theme: {
+        extend: {},
+        fontFamily: {
+          sans: ["var(--font-inter)"]
+        }
+      },
+      plugins: []
+    };
+    ```
+
+    </TabItem>
+
+    </Tabs>
+
+See [Tailwind's docs on adding custom font families](https://tailwindcss.com/docs/font-family#using-a-custom-value) for more information.
+
+## Caching
+
+Font files should be cached for better performance. The file name contains a hash and should not be renamed. For example on Cloudflare:
+
+```txt title="public/_headers"
+/fonts/*
+    Cache-Control: public, max-age=31536000, immutable
+```
+
+## OpenGraph image generation
+
+Since you own the files, advanced use cases can easily be achieved. For example, OpenGraph image generation:
+
+```tsx title="src/pages/og.png.ts"
+import type { APIRoute } from "astro";
+import satori from "satori";
+import { html } from "satori-html";
+import sharp from "sharp";
+
+export const GET: APIRoute = async (context) => {
+  const url = new URL("/fonts/font-inter-400-normal-latin.hash.woff2", context.url);
+  const data = await fetch(url).then((res) => res.arrayBuffer());
+
+  const svg = await satori(
+    html`<div style="color: black;">hello, world</div>`,
+    {
+      width: 600,
+      height: 400,
+      fonts: [
+        {
+          name: "Inter",
+          data,
+          weight: 400,
+          style: "normal",
+        },
+      ],
+    },
+  );
+
+  const pngBuffer = await sharp(Buffer.from(svg))
+    .resize(600, 400)
+    .png()
+    .toBuffer();
+
+  return new Response(new Uint8Array(pngBuffer), {
+    headers: {
+      "Content-Type": "image/png",
+    },
+  });
+};
+```

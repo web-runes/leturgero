@@ -119,7 +119,7 @@ const main = define({
 				note(
 					[
 						"Now that you have font and CSS files, it is time to hook them up in your project.",
-						`Head over to the documentation to learn how: ${styleText("blue", "TODO:")}`,
+						`Head over to the documentation to learn how: ${styleText("blue", "https://leturgero.web-runes.dev/usage/")}`,
 					].join("\n"),
 					"Next steps",
 				);

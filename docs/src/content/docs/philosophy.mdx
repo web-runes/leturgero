@@ -1,0 +1,26 @@
+---
+title: Philosophy
+---
+
+For the past few years, I ([Florian Lefebvre](https://github.com/florian-lefebvre)) have worked quite a lot on fonts. I made [Astro's Fonts API](https://docs.astro.build/en/guides/fonts/), which released as stable in Astro 6.0. It is heavily inspired by [Nuxt's Fonts module](https://fonts.nuxt.com/) and [Next.js fonts optimization](https://nextjs.org/docs/app/getting-started/fonts).
+
+While working on it, I made sure to decouple it from Astro internally. I wanted to allow other frameworks to benefit from it, for example as a [Vite](https://vite.dev/) plugin.
+
+But thinking deeper about fonts optimization in web projects, I realized something: I never questioned whether having it as a package was the best way to do it. And if you read this now, that means I think there's a better way.
+
+The package approach comes with the following downsides:
+
+- It only works for a given ecosystem or tool: Astro, Next.js, Nuxt, Vite...it would need to be completely redone for other ecosystems such as Laravel or Rails
+- The abstraction, even if thin, makes it complicated for more advanced use cases: granular preloads, programmatic access for OG image generation
+
+So given all that, I thought about a different take on this problem: what if, inspired by [`shadcn/ui`](https://ui.shadcn.com/), **you used a CLI to download the files once and then they'd be yours?**
+
+This is the best of both worlds:
+
+- Just like for packages, you get to pick which files you want (family, weights, styles, formats, subsets..)
+- The files are downloaded (self hosting), which ensures your users' privacy
+- You get the fallbacks optimization, if you want it (coming soon)
+- The files are yours, you can do anything: only preload these specific files, read the font files to use them with [Takumi](https://takumi.kane.tw/)...
+- You can use it with any tool, it's just font and CSS files
+
+Give it a try!
