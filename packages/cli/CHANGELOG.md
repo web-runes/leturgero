@@ -1,5 +1,11 @@
 # @leturgero/cli
 
+## 0.0.3
+
+### Patch Changes
+
+- [`3bd395b`](https://github.com/web-runes/leturgero/commit/3bd395bb87b3229a9ddd071129631e48fd0b5e8b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds missing shebang which was preventing running the CLI
+
 ## 0.0.2
 
 ### Patch Changes
