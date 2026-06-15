@@ -43,7 +43,7 @@ When run without flags, the CLI walks you through every choice: where to save as
 │  public
 │
 ◇  Where would you like font files to be saved inside it? (e.g. fonts)
-│  ./fonts
+│  fonts
 │
 ◇  Where would you like CSS to be saved? (e.g. src/styles)
 │  src/styles
@@ -99,7 +99,7 @@ npx @leturgero/cli@latest --font-family "Inter Tight" --weights "400,500"
 # Skip every prompt
 npx @leturgero/cli@latest \
   --public-dir /foo/bar/public/ \
-  --public-fonts-dir ./fonts \
+  --public-fonts-dir fonts \
   --styles-dir /foo/bar/src/styles/ \
   --font-family "Inter" \
   --weights "300,400" \
@@ -119,7 +119,7 @@ Absolute path to the directory where your static assets are saved (e.g. `public`
 
 ### `--public-fonts-dir <path>`
 
-Path, relative to [`--public-dir`](#--public-dir-path), where font files should be saved. Usually `./fonts`.
+Path, relative to [`--public-dir`](#--public-dir-path), where font files should be saved. Usually `fonts`.
 
 ### `--styles-dir <path>`
 

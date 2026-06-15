@@ -17,7 +17,7 @@ export const args = {
 	publicFontsDir: {
 		cliName: "public-fonts-dir",
 		type: "string",
-		description: `Path relative to --${PUBLIC_DIR_CLI_NAME} where to save font files. Usually ./fonts`,
+		description: `Path relative to --${PUBLIC_DIR_CLI_NAME} where to save font files. Usually fonts`,
 	},
 	stylesDir: {
 		cliName: "styles-dir",
@@ -84,7 +84,7 @@ export async function selectPaths(options: Options): Promise<{
 		(await options.text.run({
 			message:
 				"Where would you like font files to be saved inside it? (e.g. fonts)",
-			initialValue: "./fonts",
+			initialValue: "fonts",
 			validate(value) {
 				if (!value) return "Please enter a value";
 				return validateFontsDir(value);

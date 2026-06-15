@@ -20,7 +20,7 @@ const EXAMPLES: Record<string, string> = {
 	"With all flags": [
 		pkg.name,
 		`--${selectPathsArgs.publicDir.cliName} /foo/bar/public/`,
-		`--${selectPathsArgs.publicFontsDir.cliName} ./fonts`,
+		`--${selectPathsArgs.publicFontsDir.cliName} fonts`,
 		`--${selectPathsArgs.stylesDir.cliName} /foo/bar/src/styles/`,
 		`--${selectFamilyArgs.fontFamily.cliName} "Inter"`,
 		`--${selectPropertiesArgs.weights.cliName} "300,400"`,
