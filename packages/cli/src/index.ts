@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { createReadStream } from "node:fs";
 import { styleText } from "node:util";
 import { intro, note, outro, stream } from "@clack/prompts";
