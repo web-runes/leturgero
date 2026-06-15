@@ -22,7 +22,22 @@ import type {
 	Spinner,
 	Text,
 	TextOptions,
+	TextStyler,
 } from "../dist/types.js";
+
+export class FakeTextStyler implements TextStyler {
+	blue(msg: string): string {
+		return msg;
+	}
+
+	green(msg: string): string {
+		return msg;
+	}
+
+	bgGreen(msg: string): string {
+		return msg;
+	}
+}
 
 export class FakeLogger implements Logger {
 	readonly steps: Array<string> = [];

@@ -19,6 +19,7 @@ import {
 	FakeSearch,
 	FakeSpinner,
 	FakeText,
+	FakeTextStyler,
 } from "../helpers.ts";
 
 const FAMILY: MinimalFamily = { name: "Inter", provider: "google" };
@@ -99,6 +100,7 @@ function makeHarness(
 		},
 		filesystem,
 		fetcher: new FakeFetcher(),
+		textStyler: new FakeTextStyler(),
 	};
 
 	return {
