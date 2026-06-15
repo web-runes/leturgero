@@ -76,7 +76,7 @@ export async function selectPaths(options: Options): Promise<{
 	const publicDir =
 		options.args.publicDir ??
 		(await options.directoryPicker.pick({
-			message: "Where are your static assets saved? (e.g. public)",
+			message: "Where are all your static assets saved? (e.g. public) Saving to a subfolder is the next question",
 			root: options.root,
 		}));
 	const publicFontsDir =
