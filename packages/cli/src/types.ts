@@ -112,3 +112,9 @@ export interface Filesystem {
 export interface Fetcher {
 	fetch: (url: string) => Promise<Buffer>;
 }
+
+export interface TextStyler {
+	blue: (msg: string) => string;
+	green: (msg: string) => string;
+	bgGreen: (msg: string) => string;
+}

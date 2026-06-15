@@ -4,9 +4,10 @@ import type { DirectoryPicker, DirectoryPickerOptions } from "../types.js";
 
 export class ClackDirectoryPicker implements DirectoryPicker {
 	async pick(options: DirectoryPickerOptions): Promise<string> {
+		const root = options.root.endsWith("/") ? options.root : `${options.root}/`;
 		const result = await path({
 			message: options.message,
-			root: options.root,
+			root,
 			directory: true,
 		});
 		if (isCancel(result)) {

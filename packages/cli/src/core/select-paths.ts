@@ -17,7 +17,7 @@ export const args = {
 	publicFontsDir: {
 		cliName: "public-fonts-dir",
 		type: "string",
-		description: `Path relative to --${PUBLIC_DIR_CLI_NAME} where to save font files. Usually ./fonts`,
+		description: `Path relative to --${PUBLIC_DIR_CLI_NAME} where to save font files. Usually fonts`,
 	},
 	stylesDir: {
 		cliName: "styles-dir",
@@ -76,7 +76,8 @@ export async function selectPaths(options: Options): Promise<{
 	const publicDir =
 		options.args.publicDir ??
 		(await options.directoryPicker.pick({
-			message: "Where are your static assets saved? (e.g. public)",
+			message:
+				"Where are all your static assets saved? (e.g. public) Saving to a subfolder is the next question",
 			root: options.root,
 		}));
 	const publicFontsDir =
@@ -84,7 +85,7 @@ export async function selectPaths(options: Options): Promise<{
 		(await options.text.run({
 			message:
 				"Where would you like font files to be saved inside it? (e.g. fonts)",
-			initialValue: "./fonts",
+			initialValue: "fonts",
 			validate(value) {
 				if (!value) return "Please enter a value";
 				return validateFontsDir(value);

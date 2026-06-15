@@ -1,4 +1,10 @@
-import type { Autocomplete, Logger, MinimalFamily, Search } from "../types.js";
+import type {
+	Autocomplete,
+	Logger,
+	MinimalFamily,
+	Search,
+	TextStyler,
+} from "../types.js";
 import {
 	type ArgsConstraint,
 	argsToHelpMessage,
@@ -22,6 +28,7 @@ interface Options {
 	isAgent: boolean;
 	args: InferArgs<typeof args>;
 	logger: Logger;
+	textStyler: TextStyler;
 }
 
 export async function selectFamily(options: Options): Promise<MinimalFamily> {
@@ -46,8 +53,12 @@ export async function selectFamily(options: Options): Promise<MinimalFamily> {
 		throw new ShortCircuit({ type: "silent" });
 	}
 
+	options.logger.step(
+		`${options.search.total} fonts from Fontsource (${options.textStyler.blue("https://fontsource.org")}) and Fontshare (${options.textStyler.blue("https://fontshare.com")}) ${options.search.total === 1 ? "is" : "are"} available`,
+	);
+
 	return await options.autocomplete.run({
-		message: `What font family would you like to use? ${options.search.total} ${options.search.total === 1 ? "is" : "are"} available.`,
+		message: "What font family would you like to use?",
 		onSearch(input) {
 			return options.search.search(input).map((value) => ({
 				value,

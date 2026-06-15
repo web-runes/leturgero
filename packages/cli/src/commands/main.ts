@@ -38,6 +38,7 @@ import type {
 	Search,
 	Spinner,
 	Text,
+	TextStyler,
 } from "../types.js";
 
 interface Options {
@@ -65,6 +66,7 @@ interface Options {
 	outro: () => void;
 	filesystem: Filesystem;
 	fetcher: Fetcher;
+	textStyler: TextStyler;
 }
 
 export async function mainImpl(options: Options): Promise<void> {
@@ -95,6 +97,7 @@ export async function mainImpl(options: Options): Promise<void> {
 			args: options.args,
 			isAgent: options.isAgent,
 			logger: options.logger,
+			textStyler: options.textStyler,
 		});
 
 		const suggestions = await fontsManager.getSuggestions(family);

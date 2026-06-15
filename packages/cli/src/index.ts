@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { createReadStream } from "node:fs";
-import { styleText } from "node:util";
 import { intro, note, outro, stream } from "@clack/prompts";
 import { cli, define } from "gunshi";
 import { getAgentProfile } from "gunshi/agent";
@@ -20,7 +19,7 @@ const EXAMPLES: Record<string, string> = {
 	"With all flags": [
 		pkg.name,
 		`--${selectPathsArgs.publicDir.cliName} /foo/bar/public/`,
-		`--${selectPathsArgs.publicFontsDir.cliName} ./fonts`,
+		`--${selectPathsArgs.publicFontsDir.cliName} fonts`,
 		`--${selectPathsArgs.stylesDir.cliName} /foo/bar/src/styles/`,
 		`--${selectFamilyArgs.fontFamily.cliName} "Inter"`,
 		`--${selectPropertiesArgs.weights.cliName} "300,400"`,
@@ -60,6 +59,7 @@ const main = define({
 			{ ClackConfirm },
 			{ NodeFilesystem },
 			{ NodeFetcher },
+			{ NodeTextStyler },
 		] = await Promise.all([
 			import("./commands/main.js"),
 			import("./infra/clack-autocomplete.js"),
@@ -76,9 +76,12 @@ const main = define({
 			import("./infra/clack-confirm.js"),
 			import("./infra/node-filesystem.js"),
 			import("./infra/node-fetcher.js"),
+			import("./infra/node-text-styler.js"),
 		]);
 
-		const outroMessage = `Thanks for using our tool! We'd love your feedback: ${styleText("blue", "https://github.com/web-runes/leturgero/issues")}`;
+		const textStyler = new NodeTextStyler();
+
+		const outroMessage = `Thanks for using our tool! We'd love your feedback: ${textStyler.blue("https://github.com/web-runes/leturgero/issues")}`;
 
 		return await mainImpl({
 			isAgent,
@@ -105,10 +108,11 @@ const main = define({
 			createConfirm: () => new ClackConfirm({ force: isAgent }),
 			filesystem: new NodeFilesystem(),
 			fetcher: new NodeFetcher(),
+			textStyler,
 			intro: async () => {
 				if (isAgent) return;
 				intro(
-					`Welcome to ${styleText("bgGreen", ` ${pkg.name} `)} ${styleText("green", `v${pkg.version}`)}!`,
+					`Welcome to ${textStyler.bgGreen(` ${pkg.name} `)} ${textStyler.green(`v${pkg.version}`)}!`,
 				);
 				await stream.message(
 					createReadStream(new URL("../logo.txt", import.meta.url), {
@@ -120,7 +124,7 @@ const main = define({
 				note(
 					[
 						"Now that you have font and CSS files, it is time to hook them up in your project.",
-						`Head over to the documentation to learn how: ${styleText("blue", "https://leturgero.web-runes.dev/usage/")}`,
+						`Head over to the documentation to learn how: ${textStyler.blue("https://leturgero.web-runes.dev/usage/")}`,
 					].join("\n"),
 					"Next steps",
 				);

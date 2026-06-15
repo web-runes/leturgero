@@ -86,7 +86,7 @@ describe("selectPaths (interactive mode)", () => {
 
 	test("prompts via the directory picker and text input when args are missing", async () => {
 		const logger = new FakeLogger();
-		const text = new FakeText(() => "./fonts");
+		const text = new FakeText(() => "fonts");
 		const directoryPicker = new FakeDirectoryPicker((o) =>
 			o.message.includes("static assets") ? "/proj/public" : "/proj/styles",
 		);
@@ -106,7 +106,7 @@ describe("selectPaths (interactive mode)", () => {
 
 		assert.deepEqual(result, {
 			publicDir: "/proj/public",
-			publicFontsDir: "./fonts",
+			publicFontsDir: "fonts",
 			stylesDir: "/proj/styles",
 		});
 		assert.equal(directoryPicker.calls.length, 2);

@@ -7,6 +7,7 @@ import {
 	FakeAutocomplete,
 	FakeLogger,
 	FakeSearch,
+	FakeTextStyler,
 } from "../helpers.ts";
 
 const ITEMS: Array<MinimalFamily> = [
@@ -28,6 +29,7 @@ describe("selectFamily", () => {
 			isAgent: false,
 			args: { fontFamily: "open sans" },
 			logger,
+			textStyler: new FakeTextStyler(),
 		});
 
 		assert.deepEqual(result, { name: "Open Sans", provider: "google" });
@@ -46,6 +48,7 @@ describe("selectFamily", () => {
 					isAgent: false,
 					args: { fontFamily: "intr" },
 					logger,
+					textStyler: new FakeTextStyler(),
 				}),
 			{ type: "silent" },
 		);
@@ -66,6 +69,7 @@ describe("selectFamily", () => {
 					isAgent: true,
 					args: { fontFamily: undefined },
 					logger,
+					textStyler: new FakeTextStyler(),
 				}),
 			{ type: "silent" },
 		);
@@ -82,11 +86,14 @@ describe("selectFamily", () => {
 			isAgent: false,
 			args: { fontFamily: undefined },
 			logger,
+			textStyler: new FakeTextStyler(),
 		});
 
 		assert.deepEqual(result, ITEMS[1]);
 		assert.equal(autocomplete.calls.length, 1);
-		assert.ok(autocomplete.calls[0].message.includes("3 are available"));
+		assert.ok(
+			logger.steps.some((s) => s.includes("3 ") && s.includes("are available")),
+		);
 	});
 
 	test("uses singular phrasing when only one family is available", async () => {
@@ -100,8 +107,11 @@ describe("selectFamily", () => {
 			isAgent: false,
 			args: { fontFamily: undefined },
 			logger,
+			textStyler: new FakeTextStyler(),
 		});
 
-		assert.ok(autocomplete.calls[0].message.includes("1 is available"));
+		assert.ok(
+			logger.steps.some((s) => s.includes("1 ") && s.includes("is available")),
+		);
 	});
 });

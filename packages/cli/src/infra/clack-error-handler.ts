@@ -1,4 +1,4 @@
-import { cancel } from "@clack/prompts";
+import { outro } from "@clack/prompts";
 import { ShortCircuit } from "../core/short-circuit.js";
 import type { ErrorHandler } from "../types.js";
 
@@ -14,12 +14,12 @@ export class ClackErrorHandler implements ErrorHandler {
 			const { data } = error;
 			switch (data.type) {
 				case "cancel": {
-					cancel(this.#outroMessage);
+					outro(this.#outroMessage);
 					process.exit(130);
 					break;
 				}
 				case "error": {
-					cancel(data.error);
+					outro(data.error);
 					process.exit(1);
 					break;
 				}
@@ -36,7 +36,7 @@ export class ClackErrorHandler implements ErrorHandler {
 				: typeof error === "string"
 					? error
 					: JSON.stringify(error, null, 2);
-		cancel(`An unexpected error occurred:\n${message}`);
+		outro(`An unexpected error occurred:\n${message}`);
 		process.exit(1);
 	}
 }
