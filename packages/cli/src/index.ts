@@ -122,7 +122,7 @@ const main = define({
 				note(
 					[
 						outroMessage,
-						"\nLeturgerð is still being worked on. We are working on the these features:",
+						"\nLeturgerð is still being worked on. We are working on the following features:",
 						`- Properties suggestions (blocked by ${textStyler.blue("https://github.com/unjs/unifont/pull/398")})`,
 						`- Optimized fallbacks (${textStyler.blue("https://github.com/web-runes/leturgero/issues/3")})`,
 					].join("\n"),
