@@ -6,6 +6,8 @@ Web fonts, made simple. Pick a font family, its properties and download it. Hook
 
 To get started, visit [the documentation](https://leturgero.web-runes.dev/).
 
+![](./.github/demo.gif)
+
 ## Licensing
 
 [MIT Licensed](./LICENSE). Made with ❤️ by [Florian Lefebvre](https://github.com/florian-lefebvre).
