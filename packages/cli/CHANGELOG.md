@@ -1,5 +1,11 @@
 # @leturgero/cli
 
+## 0.0.5
+
+### Patch Changes
+
+- [`b795dfc`](https://github.com/web-runes/leturgero/commit/b795dfce3c72a0909048a55a2dc31e4e9881cd9f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a project status note when starting the CLI
+
 ## 0.0.4
 
 ### Patch Changes
