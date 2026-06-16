@@ -1,6 +1,6 @@
 {
 	"name": "@leturgero/cli",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"description": "Web fonts, made simple.",
 	"type": "module",
 	"sideEffects": false,
