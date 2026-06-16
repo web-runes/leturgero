@@ -1,5 +1,11 @@
 # @leturgero/cli
 
+## 0.0.6
+
+### Patch Changes
+
+- [`ef90a34`](https://github.com/web-runes/leturgero/commit/ef90a34f713e902bb35fd491d287f558980bfff1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a typo
+
 ## 0.0.5
 
 ### Patch Changes
