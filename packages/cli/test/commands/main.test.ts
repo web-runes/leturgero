@@ -41,6 +41,7 @@ const DEFAULT_ARGS = {
 	formats: ["woff2"] as Array<"woff2">,
 	subsets: undefined,
 	cssVariable: "--font-inter",
+	fallbacks: ["Arial", "sans-serif"],
 };
 
 function makeHarness(
@@ -142,6 +143,34 @@ describe("mainImpl", () => {
 
 		assert.ok(h.logger.steps.includes("Saved 1 font file to disk"));
 		assert.ok(h.logger.steps.includes("Saved font-inter.css to disk"));
+	});
+
+	test("threads the selected fallbacks into the generated css", async () => {
+		const h = makeHarness({ args: { fallbacks: ["Helvetica", "sans-serif"] } });
+
+		await mainImpl(h.options);
+
+		const cssWrite = h.filesystem.writes.find((w) => w.path.endsWith(".css"));
+		assert.ok(cssWrite);
+		const css = cssWrite.contents.toString();
+		assert.ok(css.includes("--font-inter: Inter, Helvetica, sans-serif;"), css);
+	});
+
+	test("defaults fallbacks to sans-serif when the family resolves none", async () => {
+		const h = makeHarness({
+			args: { fallbacks: undefined },
+			fontsManager: new FakeFontsManager({
+				families: [FAMILY],
+				resolve: () => ({ fonts: [RESOLVED_FONT], fallbacks: [] }),
+			}),
+		});
+
+		await mainImpl(h.options);
+
+		const cssWrite = h.filesystem.writes.find((w) => w.path.endsWith(".css"));
+		assert.ok(cssWrite);
+		const css = cssWrite.contents.toString();
+		assert.ok(css.includes("--font-inter: Inter, sans-serif;"), css);
 	});
 
 	test("confirms the exact number of files before downloading", async () => {

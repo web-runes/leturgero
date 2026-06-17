@@ -75,6 +75,9 @@ When run without flags, the CLI walks you through every choice: where to save as
 │
 ◇  Saved 2 font files to disk
 │
+◇  What fallback fonts would you like to use? (comma-separated)
+│  sans-serif
+│
 ◇  Saved font-inter.css to disk
 │
 ◇  Next steps ──────────────╮
@@ -106,7 +109,8 @@ npx @leturgero/cli@latest \
   --styles "normal,italic" \
   --formats "woff2,woff" \
   --subsets latin \
-  --css-variable "--font-inter"
+  --css-variable "--font-inter" \
+  --fallbacks "Arial,sans-serif"
 ```
 
 ## Flags
@@ -152,6 +156,12 @@ Comma-separated list of subsets to download, for example `latin`. Not all font f
 The CSS variable name to use in the generated CSS file, for example `"--font-inter"`.
 
 It must start with `--` and be a valid CSS ident: it can only contain letters, digits, hyphens and underscores. Converting the font family name to kebab case (e.g. `--font-inter-tight`) is an easy way to pick one.
+
+### `--fallbacks <list>`
+
+Comma-separated list of fallback font families to append after the chosen family in the generated CSS variable, for example `"Arial,sans-serif"`. Wrap names containing spaces in quotes.
+
+It defaults to the family's resolved fallbacks, or `sans-serif` when none are available.
 
 ## Global flags
 
