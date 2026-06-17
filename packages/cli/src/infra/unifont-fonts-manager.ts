@@ -1,13 +1,8 @@
-import {
-	createUnifont,
-	type FontFaceData,
-	type Provider,
-	providers,
-	type Unifont,
-} from "unifont";
+import { createUnifont, type Provider, providers, type Unifont } from "unifont";
 import type {
 	FamilyProperties,
 	FamilySuggestions,
+	FontFace,
 	FontsManager,
 	MinimalFamily,
 } from "../types.js";
@@ -62,14 +57,20 @@ export class UnifontFontsManager implements FontsManager {
 		family: MinimalFamily,
 		properties: FamilyProperties,
 	): Promise<{
-		fonts: Array<FontFaceData>;
+		fonts: Array<FontFace>;
 		fallbacks: Array<string> | undefined;
 	}> {
 		const result = await this.#unifont.resolveFont(family.name, properties, [
 			family.provider,
 		]);
 		return {
-			fonts: result.fonts,
+			// Lift unifont's data into our font type at the boundary; the family
+			// override and descriptors are only filled in later (e.g. fallbacks).
+			fonts: result.fonts.map((font) => ({
+				...font,
+				family: undefined,
+				descriptors: undefined,
+			})),
 			fallbacks: result.fallbacks,
 		};
 	}

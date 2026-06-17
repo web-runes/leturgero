@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import type { FontFaceData } from "unifont";
 import { generateCss } from "../../dist/core/generate-css.js";
 
 describe("generateCss", () => {
@@ -25,20 +24,23 @@ describe("generateCss", () => {
 	});
 
 	test("renders a @font-face block with family, src, and defaults", () => {
-		const font: FontFaceData = {
-			src: [
-				{ url: "https://cdn.example/inter.woff2", format: "woff2" },
-				{ name: "Inter" },
-			],
-			weight: [400, 700],
-			style: "italic",
-			unicodeRange: ["U+0000-00FF", "U+0131"],
-		};
 		const css = generateCss({
 			family: "Open Sans",
 			cssVariable: "--font",
 			fallbacks: [],
-			fonts: [font],
+			fonts: [
+				{
+					src: [
+						{ url: "https://cdn.example/inter.woff2", format: "woff2" },
+						{ name: "Inter" },
+					],
+					weight: [400, 700],
+					style: "italic",
+					unicodeRange: ["U+0000-00FF", "U+0131"],
+					family: undefined,
+					descriptors: undefined,
+				},
+			],
 		});
 
 		assert.ok(css.includes("@font-face {"));
@@ -61,7 +63,14 @@ describe("generateCss", () => {
 			family: "Inter",
 			cssVariable: "--font",
 			fallbacks: [],
-			fonts: [{ src: [{ name: "Inter" }], display: "optional" }],
+			fonts: [
+				{
+					src: [{ name: "Inter" }],
+					display: "optional",
+					family: undefined,
+					descriptors: undefined,
+				},
+			],
 		});
 		assert.ok(css.includes("  font-display: optional;"), css);
 		assert.ok(!css.includes("font-display: swap;"), css);
@@ -72,7 +81,14 @@ describe("generateCss", () => {
 			family: "Inter",
 			cssVariable: "--font",
 			fallbacks: [],
-			fonts: [{ src: [{ name: "Inter" }], weight: 500 }],
+			fonts: [
+				{
+					src: [{ name: "Inter" }],
+					weight: 500,
+					family: undefined,
+					descriptors: undefined,
+				},
+			],
 		});
 		assert.ok(css.includes("  font-weight: 500;"), css);
 		// stretch / feature-settings were never set, so they must not appear.
@@ -95,6 +111,8 @@ describe("generateCss", () => {
 							tech: "color-COLRv1",
 						},
 					],
+					family: undefined,
+					descriptors: undefined,
 				},
 			],
 		});
@@ -106,12 +124,35 @@ describe("generateCss", () => {
 		);
 	});
 
+	test("renders a font face under its own family with extra descriptors", () => {
+		const css = generateCss({
+			family: "Inter",
+			cssVariable: "--font-inter",
+			fallbacks: ["sans-serif"],
+			fonts: [
+				{
+					family: "Inter fallback: Arial",
+					src: [{ name: "Arial" }],
+					weight: 400,
+					descriptors: { "size-adjust": "90%", "ascent-override": "95%" },
+				},
+			],
+		});
+		assert.ok(css.includes('  font-family: "Inter fallback: Arial";'), css);
+		assert.ok(css.includes('  src: local("Arial");'), css);
+		assert.ok(css.includes("  size-adjust: 90%;"), css);
+		assert.ok(css.includes("  ascent-override: 95%;"), css);
+	});
+
 	test("separates the variable block and each font-face with a blank line", () => {
 		const css = generateCss({
 			family: "Inter",
 			cssVariable: "--font",
 			fallbacks: [],
-			fonts: [{ src: [{ name: "A" }] }, { src: [{ name: "B" }] }],
+			fonts: [
+				{ src: [{ name: "A" }], family: undefined, descriptors: undefined },
+				{ src: [{ name: "B" }], family: undefined, descriptors: undefined },
+			],
 		});
 		const blocks = css.split("\n\n");
 		assert.equal(blocks.length, 3);

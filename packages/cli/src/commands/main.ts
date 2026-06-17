@@ -1,5 +1,6 @@
 import type { InferArgs } from "../core/args.js";
 import { generateCss } from "../core/generate-css.js";
+import { optimizeFallbacks } from "../core/optimize-fallbacks.js";
 import { proxySources } from "../core/proxy-sources.js";
 import { saveCssToDisk } from "../core/save-css-to-disk.js";
 import { saveFontsToDisk } from "../core/save-fonts-to-disk.js";
@@ -16,6 +17,10 @@ import {
 	selectFamily,
 	type args as selectFamilyArgs,
 } from "../core/select-family.js";
+import {
+	selectOptimizeFallbacks,
+	type args as selectOptimizeFallbacksArgs,
+} from "../core/select-optimize-fallbacks.js";
 import {
 	selectPaths,
 	type args as selectPathsArgs,
@@ -34,6 +39,7 @@ import type {
 	ErrorHandler,
 	Fetcher,
 	Filesystem,
+	FontMetricsResolver,
 	FontsManager,
 	Hasher,
 	Logger,
@@ -41,6 +47,7 @@ import type {
 	Progress,
 	Search,
 	Spinner,
+	SystemFallbacksProvider,
 	Text,
 	TextStyler,
 } from "../types.js";
@@ -51,7 +58,8 @@ interface Options {
 		InferArgs<typeof selectFamilyArgs> &
 		InferArgs<typeof selectPropertiesArgs> &
 		InferArgs<typeof selectCssVariableArgs> &
-		InferArgs<typeof selectFallbacksArgs>;
+		InferArgs<typeof selectFallbacksArgs> &
+		InferArgs<typeof selectOptimizeFallbacksArgs>;
 	errorHandler: ErrorHandler;
 	createSpinner: () => Spinner;
 	createAutocomplete: () => Autocomplete;
@@ -72,6 +80,8 @@ interface Options {
 	filesystem: Filesystem;
 	fetcher: Fetcher;
 	textStyler: TextStyler;
+	systemFallbacksProvider: SystemFallbacksProvider;
+	fontMetricsResolver: FontMetricsResolver;
 }
 
 export async function mainImpl(options: Options): Promise<void> {
@@ -171,7 +181,7 @@ export async function mainImpl(options: Options): Promise<void> {
 			logger: options.logger,
 		});
 
-		const fallbacks = await selectFallbacks({
+		let fallbacks = await selectFallbacks({
 			defaultFallbacks: resolved.fallbacks?.length
 				? resolved.fallbacks
 				: ["sans-serif"],
@@ -181,9 +191,31 @@ export async function mainImpl(options: Options): Promise<void> {
 			logger: options.logger,
 		});
 
-		// TODO: ask if user wants optimized fallbacks (do not allow customization), default to true
-		// for each file in proxyResult.filenameToContent, compute what's needed
-		// add fonts to the array (need handling of adjust properties)
+		if (
+			await selectOptimizeFallbacks({
+				confirm: options.createConfirm(),
+				isAgent: options.isAgent,
+				args: options.args,
+				logger: options.logger,
+			})
+		) {
+			const optimizeSpinner = options.createSpinner();
+			optimizeSpinner.start("Generating optimized fallbacks...");
+			const result = await optimizeFallbacks({
+				family: family.name,
+				fallbacks,
+				collectedFonts: proxyResult.collectedFonts,
+				systemFallbacksProvider: options.systemFallbacksProvider,
+				fontMetricsResolver: options.fontMetricsResolver,
+			});
+			if (result) {
+				fallbacks = result.fallbacks;
+				fonts.push(...result.fonts);
+				optimizeSpinner.stop("Generated optimized fallbacks");
+			} else {
+				optimizeSpinner.stop("No optimized fallbacks could be inferred");
+			}
+		}
 
 		const css = generateCss({
 			cssVariable,

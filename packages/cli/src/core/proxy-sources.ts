@@ -1,12 +1,18 @@
 import { extname, join, relative } from "node:path";
-import type { FontFaceData, RemoteFontSource } from "unifont";
-import type { Fetcher, Hasher, Progress } from "../types.js";
+import type { RemoteFontSource } from "unifont";
+import type {
+	CollectedFont,
+	Fetcher,
+	FontFace,
+	Hasher,
+	Progress,
+} from "../types.js";
 import { kebabize } from "../utils.js";
 import { ShortCircuit } from "./short-circuit.js";
 
 interface Options {
 	cssVariable: string;
-	fonts: Array<FontFaceData>;
+	fonts: Array<FontFace>;
 	hasher: Hasher;
 	publicDir: string;
 	publicFontsDir: string;
@@ -42,61 +48,81 @@ function prependForwardSlash(str: string): string {
 }
 
 export async function proxySources(options: Options): Promise<{
-	fonts: Array<FontFaceData>;
+	fonts: Array<FontFace>;
 	filenameToContents: Map<string, Buffer>;
+	/**
+	 * Each downloaded font paired with the bytes of its first remote source, so
+	 * its metrics can be read without re-deriving the mapping from filenames.
+	 */
+	collectedFonts: Array<CollectedFont>;
 }> {
 	const filenameToContents = new Map<string, Buffer>();
+	const collectedFonts: Array<CollectedFont> = [];
 	const prog = options.createProgress();
 	prog.start("Downloading font files...");
 
 	try {
-		const fonts: Array<FontFaceData> = await Promise.all(
-			options.fonts.map(async (font) => ({
-				...font,
-				src: await Promise.all(
-					font.src.map(async (src) => {
-						if ("name" in src) return { ...src };
+		const fonts: Array<FontFace> = await Promise.all(
+			options.fonts.map(async (font) => {
+				// Any remote source of a font shares the same metrics (only the
+				// container format differs), so we keep the first one we download.
+				let buffer: Buffer | undefined;
 
-						const contents = await options.fetcher.fetch(src.url);
-						prog.advance(1);
+				const proxied: FontFace = {
+					...font,
+					src: await Promise.all(
+						font.src.map(async (src) => {
+							if ("name" in src) return { ...src };
 
-						const format = getFormat(src);
-						const filename = `${kebabize(
-							[
-								options.cssVariable.slice(2),
-								font.weight?.toString(),
-								font.style,
-								font.meta?.subset,
-							]
-								.filter(Boolean)
-								.join("-"),
-						)}.${options.hasher.hash(contents)}.${format.type}`;
+							const contents = await options.fetcher.fetch(src.url);
+							prog.advance(1);
+							buffer ??= contents;
 
-						filenameToContents.set(filename, contents);
+							const format = getFormat(src);
+							const filename = `${kebabize(
+								[
+									options.cssVariable.slice(2),
+									font.weight?.toString(),
+									font.style,
+									font.meta?.subset,
+								]
+									.filter(Boolean)
+									.join("-"),
+							)}.${options.hasher.hash(contents)}.${format.type}`;
 
-						return {
-							url: prependForwardSlash(
-								join(
-									relative(
-										options.publicDir,
-										join(options.publicDir, options.publicFontsDir),
+							filenameToContents.set(filename, contents);
+
+							return {
+								url: prependForwardSlash(
+									join(
+										relative(
+											options.publicDir,
+											join(options.publicDir, options.publicFontsDir),
+										),
+										filename,
 									),
-									filename,
 								),
-							),
-							originalURL: src.url,
-							format: format.format,
-							tech: src.tech,
-						};
-					}),
-				),
-			})),
+								originalURL: src.url,
+								format: format.format,
+								tech: src.tech,
+							};
+						}),
+					),
+				};
+
+				if (buffer) {
+					collectedFonts.push({ data: proxied, buffer });
+				}
+
+				return proxied;
+			}),
 		);
 
 		prog.stop("Downloaded");
 
 		return {
 			filenameToContents,
+			collectedFonts,
 			fonts,
 		};
 	} catch {

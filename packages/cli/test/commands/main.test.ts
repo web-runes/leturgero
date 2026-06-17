@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import type { FontFaceData } from "unifont";
 import { mainImpl } from "../../dist/commands/main.js";
 import { ShortCircuit } from "../../dist/core/short-circuit.js";
-import type { MinimalFamily } from "../../dist/types.js";
+import type { FontFace, MinimalFamily } from "../../dist/types.js";
 import {
 	FakeAutocomplete,
 	FakeConfirm,
@@ -11,6 +10,7 @@ import {
 	FakeErrorHandler,
 	FakeFetcher,
 	FakeFilesystem,
+	FakeFontMetricsResolver,
 	FakeFontsManager,
 	FakeHasher,
 	FakeLogger,
@@ -18,16 +18,19 @@ import {
 	FakeProgress,
 	FakeSearch,
 	FakeSpinner,
+	FakeSystemFallbacksProvider,
 	FakeText,
 	FakeTextStyler,
 } from "../helpers.ts";
 
 const FAMILY: MinimalFamily = { name: "Inter", provider: "google" };
 
-const RESOLVED_FONT: FontFaceData = {
+const RESOLVED_FONT: FontFace = {
 	src: [{ url: "https://cdn.example/inter.woff2", format: "woff2" }],
 	weight: 400,
 	style: "normal",
+	family: undefined,
+	descriptors: undefined,
 };
 
 // Every flag set so the flow never falls back to an interactive prompt.
@@ -42,6 +45,9 @@ const DEFAULT_ARGS = {
 	subsets: undefined,
 	cssVariable: "--font-inter",
 	fallbacks: ["Arial", "sans-serif"],
+	// Off by default in tests so the flow stays focused; opted into explicitly
+	// where the optimization itself is under test.
+	optimizeFallbacks: false,
 };
 
 function makeHarness(
@@ -57,6 +63,8 @@ function makeHarness(
 	const logger = new FakeLogger();
 	const errorHandler = new FakeErrorHandler();
 	const confirm = overrides.confirm ?? new FakeConfirm();
+	const systemFallbacksProvider = new FakeSystemFallbacksProvider();
+	const fontMetricsResolver = new FakeFontMetricsResolver();
 	const fontsManager =
 		overrides.fontsManager ??
 		new FakeFontsManager({
@@ -102,6 +110,8 @@ function makeHarness(
 		filesystem,
 		fetcher: new FakeFetcher(),
 		textStyler: new FakeTextStyler(),
+		systemFallbacksProvider,
+		fontMetricsResolver,
 	};
 
 	return {
@@ -113,6 +123,8 @@ function makeHarness(
 		fontsManager,
 		intro,
 		outro,
+		systemFallbacksProvider,
+		fontMetricsResolver,
 	};
 }
 
@@ -171,6 +183,46 @@ describe("mainImpl", () => {
 		assert.ok(cssWrite);
 		const css = cssWrite.contents.toString();
 		assert.ok(css.includes("--font-inter: Inter, sans-serif;"), css);
+	});
+
+	test("prepends optimized fallback families and emits their @font-face", async () => {
+		const h = makeHarness({
+			args: {
+				fallbacks: ["Arial", "sans-serif"],
+				optimizeFallbacks: true,
+			},
+		});
+
+		await mainImpl(h.options);
+
+		const cssWrite = h.filesystem.writes.find((w) => w.path.endsWith(".css"));
+		assert.ok(cssWrite);
+		const css = cssWrite.contents.toString();
+		assert.ok(
+			css.includes(
+				'--font-inter: Inter, "Inter fallback: Arial", Arial, sans-serif;',
+			),
+			css,
+		);
+		assert.ok(css.includes('font-family: "Inter fallback: Arial";'), css);
+		// The downloaded font's bytes were read to compute metrics.
+		assert.equal(h.fontMetricsResolver.metricsCalls.length, 1);
+		assert.equal(h.systemFallbacksProvider.calls[0].variant, "normal");
+	});
+
+	test("leaves fallbacks untouched when none can be optimized", async () => {
+		// A non-generic last fallback gives nothing to infer local fonts from.
+		const h = makeHarness({
+			args: { fallbacks: ["Arial"], optimizeFallbacks: true },
+		});
+
+		await mainImpl(h.options);
+
+		const cssWrite = h.filesystem.writes.find((w) => w.path.endsWith(".css"));
+		assert.ok(cssWrite);
+		const css = cssWrite.contents.toString();
+		assert.ok(css.includes("--font-inter: Inter, Arial;"), css);
+		assert.ok(!css.includes("fallback:"), css);
 	});
 
 	test("confirms the exact number of files before downloading", async () => {

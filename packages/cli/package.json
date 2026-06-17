@@ -40,6 +40,7 @@
 		"@typescript/native-preview": "7.0.0-dev.20260613.1"
 	},
 	"dependencies": {
+		"@capsizecss/unpack": "^4.0.1",
 		"@clack/prompts": "^1.5.1",
 		"fuse.js": "^7.4.2",
 		"gunshi": "~0.34.0",

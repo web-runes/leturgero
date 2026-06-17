@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import type { FontFaceData, RemoteFontSource } from "unifont";
+import type { RemoteFontSource } from "unifont";
 import { proxySources } from "../../dist/core/proxy-sources.js";
+import type { FontFace } from "../../dist/types.js";
 import {
 	assertShortCircuit,
 	FakeFetcher,
@@ -15,7 +16,7 @@ function baseOptions(
 	const progress = new FakeProgress();
 	return {
 		cssVariable: "--font-inter",
-		fonts: [] as Array<FontFaceData>,
+		fonts: [] as Array<FontFace>,
 		hasher: new FakeHasher("abcd1234"),
 		publicDir: "/proj/public",
 		publicFontsDir: "fonts",
@@ -27,7 +28,7 @@ function baseOptions(
 
 describe("proxySources", () => {
 	test("downloads remote sources, rewrites urls, and collects file contents", async () => {
-		const fonts: Array<FontFaceData> = [
+		const fonts = [
 			{
 				src: [
 					{ url: "https://cdn.example/inter.woff2", format: "woff2" },
@@ -35,6 +36,8 @@ describe("proxySources", () => {
 				],
 				weight: 400,
 				style: "normal",
+				family: undefined,
+				descriptors: undefined,
 			},
 		];
 
@@ -63,9 +66,54 @@ describe("proxySources", () => {
 		assert.deepEqual(src1, { name: "Inter" });
 	});
 
+	test("collects each font with the bytes of its first remote source", async () => {
+		const fonts = [
+			{
+				src: [
+					{ name: "Inter" },
+					{ url: "https://cdn.example/inter.woff2", format: "woff2" },
+					{ url: "https://cdn.example/inter.woff", format: "woff" },
+				],
+				weight: 400,
+				style: "normal",
+				family: undefined,
+				descriptors: undefined,
+			},
+		];
+
+		const result = await proxySources(
+			baseOptions({
+				fonts,
+				fetcher: new FakeFetcher((url) => Buffer.from(url)),
+			}),
+		);
+
+		assert.equal(result.collectedFonts.length, 1);
+		// The proxied font (with rewritten urls) is what gets collected.
+		assert.equal(result.collectedFonts[0].data, result.fonts[0]);
+		assert.deepEqual(
+			result.collectedFonts[0].buffer,
+			Buffer.from("https://cdn.example/inter.woff2"),
+		);
+	});
+
+	test("does not collect fonts that have no remote source", async () => {
+		const fonts = [
+			{ src: [{ name: "Inter" }], family: undefined, descriptors: undefined },
+		];
+
+		const result = await proxySources(baseOptions({ fonts }));
+
+		assert.deepEqual(result.collectedFonts, []);
+	});
+
 	test("derives the format from the file extension when none is given", async () => {
-		const fonts: Array<FontFaceData> = [
-			{ src: [{ url: "https://cdn.example/inter.ttf" } as RemoteFontSource] },
+		const fonts = [
+			{
+				src: [{ url: "https://cdn.example/inter.ttf" } as RemoteFontSource],
+				family: undefined,
+				descriptors: undefined,
+			},
 		];
 
 		const result = await proxySources(baseOptions({ fonts }));
@@ -81,13 +129,15 @@ describe("proxySources", () => {
 	test("reports progress: start, one advance per remote source, then stop", async () => {
 		const progress = new FakeProgress();
 		const { events } = progress;
-		const fonts: Array<FontFaceData> = [
+		const fonts = [
 			{
 				src: [
 					{ url: "https://cdn.example/a.woff2", format: "woff2" },
 					{ name: "Local" },
 					{ url: "https://cdn.example/b.woff2", format: "woff2" },
 				],
+				family: undefined,
+				descriptors: undefined,
 			},
 		];
 
@@ -104,8 +154,12 @@ describe("proxySources", () => {
 	test("reports an error and short-circuits with cancel when a fetch fails", async () => {
 		const progress = new FakeProgress();
 		const { events } = progress;
-		const fonts: Array<FontFaceData> = [
-			{ src: [{ url: "https://cdn.example/a.woff2", format: "woff2" }] },
+		const fonts = [
+			{
+				src: [{ url: "https://cdn.example/a.woff2", format: "woff2" }],
+				family: undefined,
+				descriptors: undefined,
+			},
 		];
 
 		await assertShortCircuit(

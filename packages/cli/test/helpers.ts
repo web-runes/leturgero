@@ -3,15 +3,21 @@ import { ShortCircuit } from "../dist/core/short-circuit.js";
 import type {
 	Autocomplete,
 	AutocompleteOptions,
+	CollectedFont,
 	Confirm,
+	CssProperties,
 	DirectoryPicker,
 	DirectoryPickerOptions,
 	ErrorHandler,
+	FallbackVariant,
 	FamilyProperties,
 	FamilySuggestions,
 	Fetcher,
 	Filesystem,
+	FontFaceMetrics,
+	FontMetricsResolver,
 	FontsManager,
+	GenericFallbackName,
 	Hasher,
 	Logger,
 	MinimalFamily,
@@ -20,6 +26,7 @@ import type {
 	Progress,
 	Search,
 	Spinner,
+	SystemFallbacksProvider,
 	Text,
 	TextOptions,
 	TextStyler,
@@ -224,6 +231,79 @@ export class FakeErrorHandler implements ErrorHandler {
 
 	onError(error: unknown): void {
 		this.errors.push(error);
+	}
+}
+
+const SAMPLE_METRICS: FontFaceMetrics = {
+	ascent: 1000,
+	descent: -200,
+	lineGap: 0,
+	unitsPerEm: 1000,
+	xWidthAvg: 500,
+};
+
+/**
+ * SystemFallbacksProvider fake. Maps `sans-serif` to `Arial` by default; pass a
+ * handler to drive other generics. Records every `getLocalFonts` call.
+ */
+export class FakeSystemFallbacksProvider implements SystemFallbacksProvider {
+	readonly calls: Array<{
+		fallback: GenericFallbackName;
+		variant: FallbackVariant;
+	}> = [];
+	#getLocalFonts: (
+		fallback: GenericFallbackName,
+		variant: FallbackVariant,
+	) => Array<string> | null;
+
+	constructor(
+		getLocalFonts: (
+			fallback: GenericFallbackName,
+			variant: FallbackVariant,
+		) => Array<string> | null = (fallback) =>
+			fallback === "sans-serif" ? ["Arial"] : null,
+	) {
+		this.#getLocalFonts = getLocalFonts;
+	}
+
+	getLocalFonts(
+		fallback: GenericFallbackName,
+		variant: FallbackVariant,
+	): Array<string> | null {
+		this.calls.push({ fallback, variant });
+		return this.#getLocalFonts(fallback, variant);
+	}
+
+	getMetricsForLocalFont(): FontFaceMetrics {
+		return SAMPLE_METRICS;
+	}
+}
+
+/**
+ * FontMetricsResolver fake. Returns fixed metrics and a fixed, recognizable
+ * override descriptor so tests can assert it reaches the generated CSS.
+ */
+export class FakeFontMetricsResolver implements FontMetricsResolver {
+	readonly metricsCalls: Array<{ name: string; font: CollectedFont }> = [];
+	readonly overrideCalls: Array<{
+		metrics: FontFaceMetrics;
+		fallbackMetrics: FontFaceMetrics;
+	}> = [];
+
+	async getMetrics(
+		name: string,
+		font: CollectedFont,
+	): Promise<FontFaceMetrics> {
+		this.metricsCalls.push({ name, font });
+		return SAMPLE_METRICS;
+	}
+
+	getMetricOverrides(options: {
+		metrics: FontFaceMetrics;
+		fallbackMetrics: FontFaceMetrics;
+	}): CssProperties {
+		this.overrideCalls.push(options);
+		return { "size-adjust": "90%" };
 	}
 }
 
