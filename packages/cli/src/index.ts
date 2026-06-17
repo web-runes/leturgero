@@ -6,6 +6,7 @@ import { getAgentProfile } from "gunshi/agent";
 import pkg from "../package.json" with { type: "json" };
 import { normalizeGunshiArgs, toGunshiArgs } from "./core/args.js";
 import { args as selectCssVariableArgs } from "./core/select-css-variable.js";
+import { args as selectFallbacksArgs } from "./core/select-fallbacks.js";
 import { args as selectFamilyArgs } from "./core/select-family.js";
 import { args as selectPathsArgs } from "./core/select-paths.js";
 import { args as selectPropertiesArgs } from "./core/select-properties.js";
@@ -27,6 +28,7 @@ const EXAMPLES: Record<string, string> = {
 		`--${selectPropertiesArgs.formats.cliName} "woff2,woff"`,
 		`--${selectPropertiesArgs.subsets.cliName} latin`,
 		`--${selectCssVariableArgs.cssVariable.cliName} "--font-inter"`,
+		`--${selectFallbacksArgs.fallbacks.cliName} "Arial,sans-serif"`,
 	].join(" "),
 };
 
@@ -38,6 +40,7 @@ const main = define({
 		...selectFamilyArgs,
 		...selectPropertiesArgs,
 		...selectCssVariableArgs,
+		...selectFallbacksArgs,
 	}),
 	examples: Object.entries(EXAMPLES)
 		.map(([k, v]) => `# ${k}\n$ ${v}`)
@@ -91,6 +94,7 @@ const main = define({
 					...selectFamilyArgs,
 					...selectPropertiesArgs,
 					...selectCssVariableArgs,
+					...selectFallbacksArgs,
 				},
 				ctx.values,
 			),

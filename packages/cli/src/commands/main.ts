@@ -9,6 +9,10 @@ import {
 	validateSelectCssVariableArgs,
 } from "../core/select-css-variable.js";
 import {
+	selectFallbacks,
+	type args as selectFallbacksArgs,
+} from "../core/select-fallbacks.js";
+import {
 	selectFamily,
 	type args as selectFamilyArgs,
 } from "../core/select-family.js";
@@ -46,7 +50,8 @@ interface Options {
 	args: InferArgs<typeof selectPathsArgs> &
 		InferArgs<typeof selectFamilyArgs> &
 		InferArgs<typeof selectPropertiesArgs> &
-		InferArgs<typeof selectCssVariableArgs>;
+		InferArgs<typeof selectCssVariableArgs> &
+		InferArgs<typeof selectFallbacksArgs>;
 	errorHandler: ErrorHandler;
 	createSpinner: () => Spinner;
 	createAutocomplete: () => Autocomplete;
@@ -166,10 +171,19 @@ export async function mainImpl(options: Options): Promise<void> {
 			logger: options.logger,
 		});
 
-		// TODO: ask for fallbacks (use resolved.fallbacks)
-		const fallbacks = resolved.fallbacks ?? [];
+		const fallbacks = await selectFallbacks({
+			defaultFallbacks: resolved.fallbacks?.length
+				? resolved.fallbacks
+				: ["sans-serif"],
+			text: options.createText(),
+			isAgent: options.isAgent,
+			args: options.args,
+			logger: options.logger,
+		});
 
-		// TODO: optimized fallbacks
+		// TODO: ask if user wants optimized fallbacks (do not allow customization), default to true
+		// for each file in proxyResult.filenameToContent, compute what's needed
+		// add fonts to the array (need handling of adjust properties)
 
 		const css = generateCss({
 			cssVariable,
