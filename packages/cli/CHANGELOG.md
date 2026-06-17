@@ -1,5 +1,15 @@
 # @leturgero/cli
 
+## 0.1.0
+
+### Minor Changes
+
+- [#22](https://github.com/web-runes/leturgero/pull/22) [`aabf2af`](https://github.com/web-runes/leturgero/commit/aabf2afc6167ff59db3cb5cae2d8a3f32af56d40) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds optimized fallbacks
+
+  Metric-adjusted `@font-face` rules built from system fonts that reduce layout shift (CLS) while your font loads can now be generated using the CLI
+
+- [#20](https://github.com/web-runes/leturgero/pull/20) [`3c7bcd6`](https://github.com/web-runes/leturgero/commit/3c7bcd62b5604ccd87e8701941f32dc5f1b2538e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Allows specifying the fallbacks for the choosen font family
+
 ## 0.0.6
 
 ### Patch Changes
