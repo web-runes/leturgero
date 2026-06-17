@@ -42,6 +42,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@capsizecss/unpack':
+        specifier: ^4.0.1
+        version: 4.0.1
       '@clack/prompts':
         specifier: ^1.5.1
         version: 1.5.1

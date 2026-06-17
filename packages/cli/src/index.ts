@@ -8,6 +8,7 @@ import { normalizeGunshiArgs, toGunshiArgs } from "./core/args.js";
 import { args as selectCssVariableArgs } from "./core/select-css-variable.js";
 import { args as selectFallbacksArgs } from "./core/select-fallbacks.js";
 import { args as selectFamilyArgs } from "./core/select-family.js";
+import { args as selectOptimizeFallbacksArgs } from "./core/select-optimize-fallbacks.js";
 import { args as selectPathsArgs } from "./core/select-paths.js";
 import { args as selectPropertiesArgs } from "./core/select-properties.js";
 
@@ -29,6 +30,7 @@ const EXAMPLES: Record<string, string> = {
 		`--${selectPropertiesArgs.subsets.cliName} latin`,
 		`--${selectCssVariableArgs.cssVariable.cliName} "--font-inter"`,
 		`--${selectFallbacksArgs.fallbacks.cliName} "Arial,sans-serif"`,
+		`--${selectOptimizeFallbacksArgs.optimizeFallbacks.cliName} yes`,
 	].join(" "),
 };
 
@@ -41,6 +43,7 @@ const main = define({
 		...selectPropertiesArgs,
 		...selectCssVariableArgs,
 		...selectFallbacksArgs,
+		...selectOptimizeFallbacksArgs,
 	}),
 	examples: Object.entries(EXAMPLES)
 		.map(([k, v]) => `# ${k}\n$ ${v}`)
@@ -63,6 +66,8 @@ const main = define({
 			{ NodeFilesystem },
 			{ NodeFetcher },
 			{ NodeTextStyler },
+			{ RealSystemFallbacksProvider },
+			{ CapsizeFontMetricsResolver },
 		] = await Promise.all([
 			import("./commands/main.js"),
 			import("./infra/clack-autocomplete.js"),
@@ -80,6 +85,8 @@ const main = define({
 			import("./infra/node-filesystem.js"),
 			import("./infra/node-fetcher.js"),
 			import("./infra/node-text-styler.js"),
+			import("./infra/system-fallbacks-provider.js"),
+			import("./infra/capsize-font-metrics-resolver.js"),
 		]);
 
 		const textStyler = new NodeTextStyler();
@@ -95,6 +102,7 @@ const main = define({
 					...selectPropertiesArgs,
 					...selectCssVariableArgs,
 					...selectFallbacksArgs,
+					...selectOptimizeFallbacksArgs,
 				},
 				ctx.values,
 			),
@@ -113,6 +121,8 @@ const main = define({
 			filesystem: new NodeFilesystem(),
 			fetcher: new NodeFetcher(),
 			textStyler,
+			systemFallbacksProvider: new RealSystemFallbacksProvider(),
+			fontMetricsResolver: new CapsizeFontMetricsResolver(),
 			intro: async () => {
 				if (isAgent) return;
 				intro(
@@ -128,7 +138,6 @@ const main = define({
 						outroMessage,
 						"\nLeturgerð is still being worked on. We are working on the following features:",
 						`- Properties suggestions (blocked by ${textStyler.blue("https://github.com/unjs/unifont/pull/398")})`,
-						`- Optimized fallbacks (${textStyler.blue("https://github.com/web-runes/leturgero/issues/3")})`,
 					].join("\n"),
 					"Project status",
 				);

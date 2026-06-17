@@ -31,7 +31,7 @@ Execute the CLI from your project directory using your preferred package manager
   </Fragment>
 </PackageManagerTabs>
 
-When run without flags, the CLI walks you through every choice: where to save assets, which font family to use, which weights, styles, subsets and formats to download, and the name of the CSS variable to generate.
+When run without flags, the CLI walks you through every choice: where to save assets, which font family to use, which weights, styles, subsets and formats to download, the name of the CSS variable to generate, and whether to generate optimized fallbacks.
 
 <details>
 <summary>See a full example run</summary>
@@ -78,6 +78,9 @@ When run without flags, the CLI walks you through every choice: where to save as
 ◇  What fallback fonts would you like to use? (comma-separated)
 │  sans-serif
 │
+◇  Would you like to generate optimized fallbacks? They reduce layout shift while fonts load.
+│  Yes
+│
 ◇  Saved font-inter.css to disk
 │
 ◇  Next steps ──────────────╮
@@ -110,7 +113,8 @@ npx @leturgero/cli@latest \
   --formats "woff2,woff" \
   --subsets latin \
   --css-variable "--font-inter" \
-  --fallbacks "Arial,sans-serif"
+  --fallbacks "Arial,sans-serif" \
+  --optimize-fallbacks yes
 ```
 
 ## Flags
@@ -162,6 +166,14 @@ It must start with `--` and be a valid CSS ident: it can only contain letters, d
 Comma-separated list of fallback font families to append after the chosen family in the generated CSS variable, for example `"Arial,sans-serif"`. Wrap names containing spaces in quotes.
 
 It defaults to the family's resolved fallbacks, or `sans-serif` when none are available.
+
+### `--optimize-fallbacks <yes|no>`
+
+Whether to generate optimized fallbacks, for example `yes`. Enabled by default; pass `no` to disable.
+
+Optimized fallbacks are extra `@font-face` rules built from system fonts (such as Arial or Times New Roman) with [`size-adjust`](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/size-adjust), [`ascent-override`](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/ascent-override), [`descent-override`](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/descent-override) and [`line-gap-override`](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/line-gap-override) descriptors tuned to match your font's metrics. They are inserted ahead of your fallbacks in the CSS variable so the page reserves the right space before the downloaded font loads, reducing layout shift ([CLS](https://web.dev/articles/cls)).
+
+This only works when the last fallback is a supported [generic family](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name) (such as `sans-serif`). Otherwise there is nothing to map to a system font and the step is skipped.
 
 ## Global flags
 

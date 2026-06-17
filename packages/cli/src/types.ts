@@ -31,7 +31,7 @@ export interface FontsManager {
 		family: MinimalFamily,
 		properties: FamilyProperties,
 	) => Promise<{
-		fonts: Array<FontFaceData>;
+		fonts: Array<FontFace>;
 		fallbacks: Array<string> | undefined;
 	}>;
 }
@@ -117,4 +117,80 @@ export interface TextStyler {
 	blue: (msg: string) => string;
 	green: (msg: string) => string;
 	bgGreen: (msg: string) => string;
+}
+
+/** A set of `@font-face` descriptors, keyed by CSS property name. */
+export type CssProperties = Record<string, string | undefined>;
+
+/** The subset of font metrics needed to compute fallback overrides. */
+export interface FontFaceMetrics {
+	ascent: number;
+	descent: number;
+	lineGap: number;
+	unitsPerEm: number;
+	xWidthAvg: number;
+}
+
+/**
+ * Generic CSS font families that can be mapped to concrete local fonts.
+ * See https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name.
+ */
+export type GenericFallbackName =
+	| "serif"
+	| "sans-serif"
+	| "monospace"
+	| "cursive"
+	| "fantasy"
+	| "system-ui"
+	| "ui-serif"
+	| "ui-sans-serif"
+	| "ui-monospace"
+	| "ui-rounded"
+	| "math"
+	| "emoji"
+	| "fangsong";
+
+/** Local fonts come in a couple of variants whose metrics differ. */
+export type FallbackVariant = "normal" | "bold";
+
+/** A downloaded font paired with the contents needed to read its metrics. */
+export interface CollectedFont {
+	data: FontFace;
+	buffer: Buffer;
+}
+
+/**
+ * A font face to render. Extends unifont's data with a `font-family` override
+ * (defaults to the chosen family) and extra descriptors, so optimized fallbacks
+ * flow through the same rendering path as regular fonts. This is the font type
+ * used across the app; unifont's `FontFaceData` only appears at its boundary.
+ */
+export interface FontFace extends FontFaceData {
+	family: string | undefined;
+	descriptors: CssProperties | undefined;
+}
+
+/**
+ * Maps a generic family (e.g. `sans-serif`) to the concrete system fonts a
+ * browser is likely to use for it, along with their known metrics.
+ */
+export interface SystemFallbacksProvider {
+	getLocalFonts: (
+		fallback: GenericFallbackName,
+		variant: FallbackVariant,
+	) => Array<string> | null;
+	getMetricsForLocalFont: (family: string) => FontFaceMetrics;
+}
+
+/** Reads font metrics and computes the descriptors that adjust a fallback. */
+export interface FontMetricsResolver {
+	getMetrics: (name: string, font: CollectedFont) => Promise<FontFaceMetrics>;
+	/**
+	 * Returns the `@font-face` descriptors (e.g. `size-adjust`, `ascent-override`)
+	 * that make a fallback font match the metrics of the preferred one.
+	 */
+	getMetricOverrides: (options: {
+		metrics: FontFaceMetrics;
+		fallbackMetrics: FontFaceMetrics;
+	}) => CssProperties;
 }
