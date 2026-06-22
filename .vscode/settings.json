@@ -9,5 +9,6 @@
 	},
 	"[json]": {
 		"editor.defaultFormatter": "biomejs.biome"
-	}
+	},
+	"js/ts.experimental.useTsgo": true
 }
