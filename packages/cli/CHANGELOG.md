@@ -1,5 +1,11 @@
 # @leturgero/cli
 
+## 0.1.1
+
+### Patch Changes
+
+- [`74b4c81`](https://github.com/web-runes/leturgero/commit/74b4c81562bf60773c830b4969cc8130bf389562) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates dependencies
+
 ## 0.1.0
 
 ### Minor Changes
