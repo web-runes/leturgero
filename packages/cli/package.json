@@ -42,8 +42,8 @@
 	"dependencies": {
 		"@capsizecss/unpack": "^4.0.1",
 		"@clack/prompts": "^1.7.0",
-		"fuse.js": "^7.4.2",
-		"gunshi": "~0.36.0",
+		"fuse.js": "^7.5.0",
+		"gunshi": "~0.37.1",
 		"unifont": "~0.7.4"
 	}
 }
