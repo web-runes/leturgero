@@ -44,6 +44,6 @@
 		"@clack/prompts": "^1.7.0",
 		"fuse.js": "^7.5.0",
 		"gunshi": "~0.37.1",
-		"unifont": "~0.7.4"
+		"unifont": "~0.7.5"
 	}
 }
