@@ -1,5 +1,11 @@
 # @leturgero/cli
 
+## 0.1.2
+
+### Patch Changes
+
+- [#37](https://github.com/web-runes/leturgero/pull/37) [`8ace06d`](https://github.com/web-runes/leturgero/commit/8ace06d8775e1df06228bc306830c1f324162feb) Thanks [@renovate](https://github.com/apps/renovate)! - Updates dependencies
+
 ## 0.1.1
 
 ### Patch Changes
