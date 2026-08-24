@@ -49,7 +49,9 @@ export class UnifontFontsManager implements FontsManager {
 	async getSuggestions(
 		family: MinimalFamily,
 	): Promise<FamilySuggestions | undefined> {
-		return await this.#unifont.getFontProperties(family.name, [family.provider])
+		return await this.#unifont.getFontProperties(family.name, [
+			family.provider,
+		]);
 	}
 
 	async resolve(
