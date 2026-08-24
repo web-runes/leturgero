@@ -133,14 +133,6 @@ const main = define({
 						encoding: "utf-8",
 					}),
 				);
-				note(
-					[
-						outroMessage,
-						"\nLeturgerð is still being worked on. We are working on the following features:",
-						`- Properties suggestions (blocked by ${textStyler.blue("https://github.com/unjs/unifont/pull/398")})`,
-					].join("\n"),
-					"Project status",
-				);
 			},
 			outro: () => {
 				note(
