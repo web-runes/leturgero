@@ -46,11 +46,12 @@ export class UnifontFontsManager implements FontsManager {
 		}));
 	}
 
-	// TODO: https://github.com/unjs/unifont/pull/398
 	async getSuggestions(
-		_family: MinimalFamily,
+		family: MinimalFamily,
 	): Promise<FamilySuggestions | undefined> {
-		return;
+		return await this.#unifont.getFontProperties(family.name, [
+			family.provider,
+		]);
 	}
 
 	async resolve(
