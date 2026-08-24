@@ -1,5 +1,13 @@
 # @leturgero/cli
 
+## 0.2.0
+
+### Minor Changes
+
+- [#41](https://github.com/web-runes/leturgero/pull/41) [`31e5c14`](https://github.com/web-runes/leturgero/commit/31e5c142cb73d927d0a0059f787ced7de2f846e4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for properties suggestions
+  
+  The CLI will now only give available options for properties like weights, when known.
+
 ## 0.1.2
 
 ### Patch Changes
