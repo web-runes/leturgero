@@ -55,6 +55,15 @@ export interface Search<T extends Record<string, any>> {
 	readonly items: Array<T>;
 }
 
+export interface SelectOptions<T> {
+	message: string;
+	options: Array<Option<T>>;
+}
+
+export interface Select {
+	run: <T>(options: SelectOptions<T>) => Promise<T>;
+}
+
 export interface MultiselectOptions<T> {
 	message: string;
 	options: Array<Option<T>>;
@@ -92,6 +101,8 @@ export interface Progress {
 export interface TextOptions {
 	message: string;
 	initialValue?: string;
+	/** Dimmed example shown until the user types. Never used as a value. */
+	placeholder?: string;
 	validate?: (value: string | undefined) => string | undefined;
 }
 

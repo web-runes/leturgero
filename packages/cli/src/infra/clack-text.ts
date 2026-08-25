@@ -7,6 +7,7 @@ export class ClackText implements Text {
 		const result = await text({
 			message: options.message,
 			initialValue: options.initialValue,
+			placeholder: options.placeholder,
 			validate: options.validate,
 		});
 		if (isCancel(result)) {

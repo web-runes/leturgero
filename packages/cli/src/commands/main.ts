@@ -46,6 +46,7 @@ import type {
 	Multiselect,
 	Progress,
 	Search,
+	Select,
 	Spinner,
 	SystemFallbacksProvider,
 	Text,
@@ -67,6 +68,7 @@ interface Options {
 	createDirectoryPicker: () => DirectoryPicker;
 	createProgress: (max: number) => Progress;
 	createText: () => Text;
+	createSelect: () => Select;
 	logger: Logger;
 	hasher: Hasher;
 	createFontsManager: () => Promise<FontsManager>;
@@ -108,6 +110,8 @@ export async function mainImpl(options: Options): Promise<void> {
 
 		const family = await selectFamily({
 			autocomplete: options.createAutocomplete(),
+			select: options.createSelect(),
+			text: options.createText(),
 			search: options.createSearch(await fontsManager.list(), ["name"]),
 			args: options.args,
 			isAgent: options.isAgent,
