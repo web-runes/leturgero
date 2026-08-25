@@ -25,6 +25,8 @@ import type {
 	MultiselectOptions,
 	Progress,
 	Search,
+	Select,
+	SelectOptions,
 	Spinner,
 	SystemFallbacksProvider,
 	Text,
@@ -76,6 +78,26 @@ export class FakeMultiselect implements Multiselect {
 	}
 
 	async run<T>(options: MultiselectOptions<T>): Promise<Array<T>> {
+		this.calls.push(options);
+		return this.#handler(options);
+	}
+}
+
+/**
+ * Select fake. By default the user "picks" the first option; pass a handler to
+ * drive another branch. Records every call.
+ */
+export class FakeSelect implements Select {
+	readonly calls: Array<SelectOptions<any>> = [];
+	#handler: (options: SelectOptions<any>) => any;
+
+	constructor(
+		handler: (options: SelectOptions<any>) => any = (o) => o.options[0].value,
+	) {
+		this.#handler = handler;
+	}
+
+	async run<T>(options: SelectOptions<T>): Promise<T> {
 		this.calls.push(options);
 		return this.#handler(options);
 	}

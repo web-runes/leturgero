@@ -33,6 +33,8 @@ Execute the CLI from your project directory using your preferred package manager
 
 When run without flags, the CLI walks you through every choice: where to save assets, which font family to use, which weights, styles, subsets and formats to download, the name of the CSS variable to generate, and whether to generate optimized fallbacks.
 
+The family can either be searched for by name, or picked by pasting a URL you already have at hand. See [Picking a family from a URL](#picking-a-family-from-a-url).
+
 <details>
 <summary>See a full example run</summary>
 
@@ -47,6 +49,9 @@ When run without flags, the CLI walks you through every choice: where to save as
 │
 ◇  Where would you like CSS to be saved? (e.g. src/styles)
 │  src/styles
+│
+◇  How would you like to pick a font family?
+│  Search by name
 │
 ◇  What font family would you like to use? 1768 are available.
 │  Inter
@@ -133,9 +138,11 @@ Path, relative to [`--public-dir`](#--public-dir-path), where font files should 
 
 Absolute path to the directory where the generated CSS file is saved (e.g. `src/styles`). The path must point to an existing directory.
 
-### `--font-family <name>`
+### `--font-family <name|url>`
 
 The font family to use, for example `"Inter"`. Wrap names containing spaces in quotes.
+
+It also accepts a URL, for example `"https://fonts.google.com/specimen/Inter"`, in which case the family name is extracted from it. See [Picking a family from a URL](#picking-a-family-from-a-url) for the supported URLs.
 
 If the exact value cannot be found, the CLI returns up to 10 close matches so you can retry with a valid name.
 
@@ -174,6 +181,34 @@ Whether to generate optimized fallbacks, for example `yes`. Enabled by default; 
 Optimized fallbacks are extra `@font-face` rules built from system fonts (such as Arial or Times New Roman) with [`size-adjust`](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/size-adjust), [`ascent-override`](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/ascent-override), [`descent-override`](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/descent-override) and [`line-gap-override`](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/line-gap-override) descriptors tuned to match your font's metrics. They are inserted ahead of your fallbacks in the CSS variable so the page reserves the right space before the downloaded font loads, reducing layout shift ([CLS](https://web.dev/articles/cls)).
 
 This only works when the last fallback is a supported [generic family](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name) (such as `sans-serif`). Otherwise there is nothing to map to a system font and the step is skipped.
+
+## Picking a family from a URL
+
+Instead of searching a family by its name, you can paste a URL pointing at it and let the CLI extract the name from it. Interactively, pick `Paste a URL` when asked how you would like to pick a font family:
+
+```ansi frame="terminal"
+◇  How would you like to pick a font family?
+│  Paste a URL
+│
+◇  What is the URL of the font family you would like to use?
+│  https://fonts.google.com/specimen/Inter+Tight
+│
+◇  Using Inter Tight
+```
+
+Non-interactively, pass the URL to [`--font-family`](#--font-family-nameurl).
+
+The following URLs are supported:
+
+| Source | Example |
+| --- | --- |
+| Google Fonts | `https://fonts.google.com/specimen/Inter+Tight` |
+| Google Fonts CSS | `https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400..700` |
+| Fontsource | `https://fontsource.org/fonts/inter-tight` |
+| Fontshare | `https://www.fontshare.com/fonts/general-sans` |
+| Fontshare CSS | `https://api.fontshare.com/v2/css?f[]=general-sans@400` |
+
+Fonts are always downloaded from Fontsource or Fontshare, never from Google Fonts: a Google Fonts URL is only a convenient way to name a family, and most of its catalog is mirrored by Fontsource. When a family is not available from either provider, the CLI says so and lets you pick another one.
 
 ## Global flags
 

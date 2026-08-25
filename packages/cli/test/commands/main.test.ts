@@ -17,6 +17,7 @@ import {
 	FakeMultiselect,
 	FakeProgress,
 	FakeSearch,
+	FakeSelect,
 	FakeSpinner,
 	FakeSystemFallbacksProvider,
 	FakeText,
@@ -82,6 +83,9 @@ function makeHarness(
 		throw new Error("should not pick a directory");
 	});
 	const text = new FakeText();
+	const select = new FakeSelect(() => {
+		throw new Error("should not prompt for a family source");
+	});
 	const multiselect = new FakeMultiselect();
 
 	const options = {
@@ -94,6 +98,7 @@ function makeHarness(
 		createDirectoryPicker: () => directoryPicker,
 		createProgress: () => new FakeProgress(),
 		createText: () => text,
+		createSelect: () => select,
 		logger,
 		hasher: new FakeHasher(),
 		createFontsManager:
