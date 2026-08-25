@@ -3,9 +3,9 @@ import { describe, test } from "node:test";
 import {
 	type ArgsConstraint,
 	argsToHelpMessage,
-	normalizeGunshiArgs,
+	CliArgsError,
 	parseArray,
-	toGunshiArgs,
+	parseCliArgs,
 } from "../../dist/core/args.js";
 
 const constraint = {
@@ -22,38 +22,86 @@ const constraint = {
 	},
 } as const satisfies ArgsConstraint;
 
-describe("toGunshiArgs", () => {
-	test("keys the output by cliName and carries description/type/parse", () => {
-		const gunshi = toGunshiArgs(constraint);
-		assert.deepEqual(Object.keys(gunshi).sort(), ["public-dir", "weights"]);
-		assert.deepEqual(gunshi["public-dir"], {
-			description: "the public dir",
-			type: "string",
-			parse: undefined,
-		});
-		assert.equal(gunshi.weights.description, "the weights");
-		assert.equal(gunshi.weights.type, "custom");
-		assert.equal(gunshi.weights.parse, parseArray);
-	});
-});
-
-describe("normalizeGunshiArgs", () => {
-	test("maps cliName-keyed values back to the original keys", () => {
-		const normalized = normalizeGunshiArgs(constraint, {
-			"public-dir": "/tmp/public",
-			weights: ["400", "700"],
-		});
-		assert.deepEqual(normalized, {
+describe("parseCliArgs", () => {
+	test("maps cliName-keyed flags back to the original keys", () => {
+		const { values } = parseCliArgs(constraint, [
+			"--public-dir",
+			"/tmp/public",
+			"--weights",
+			"400,700",
+		]);
+		assert.deepEqual(values, {
 			publicDir: "/tmp/public",
 			weights: ["400", "700"],
 		});
 	});
 
-	test("only includes keys present in the provided values", () => {
-		const normalized = normalizeGunshiArgs(constraint, {
-			"public-dir": "/tmp/public",
-		});
-		assert.deepEqual(normalized, { publicDir: "/tmp/public" });
+	test("only includes flags present in argv", () => {
+		const { values } = parseCliArgs(constraint, [
+			"--public-dir",
+			"/tmp/public",
+		]);
+		assert.deepEqual(values, { publicDir: "/tmp/public" });
+	});
+
+	test("accepts the --flag=value form", () => {
+		const { values } = parseCliArgs(constraint, ["--public-dir=/tmp/public"]);
+		assert.deepEqual(values, { publicDir: "/tmp/public" });
+	});
+
+	test("accepts a dash-leading value", () => {
+		const { values } = parseCliArgs(constraint, [
+			"--public-dir",
+			"--font-inter",
+		]);
+		assert.deepEqual(values, { publicDir: "--font-inter" });
+	});
+
+	test("does not swallow a following flag as a dash-leading value", () => {
+		assert.throws(
+			() => parseCliArgs(constraint, ["--public-dir", "--weights", "400"]),
+			(error: unknown) => error instanceof CliArgsError,
+		);
+	});
+
+	test("the last occurrence of a repeated flag wins", () => {
+		const { values } = parseCliArgs(constraint, [
+			"--public-dir",
+			"/a",
+			"--public-dir",
+			"/b",
+		]);
+		assert.deepEqual(values, { publicDir: "/b" });
+	});
+
+	test("reports --help and --version, including their short forms", () => {
+		assert.equal(parseCliArgs(constraint, []).help, false);
+		assert.equal(parseCliArgs(constraint, []).version, false);
+		assert.equal(parseCliArgs(constraint, ["--help"]).help, true);
+		assert.equal(parseCliArgs(constraint, ["-h"]).help, true);
+		assert.equal(parseCliArgs(constraint, ["--version"]).version, true);
+		assert.equal(parseCliArgs(constraint, ["-v"]).version, true);
+	});
+
+	test("rejects unknown flags", () => {
+		assert.throws(
+			() => parseCliArgs(constraint, ["--nope"]),
+			(error: unknown) => error instanceof CliArgsError,
+		);
+	});
+
+	test("rejects positional arguments", () => {
+		assert.throws(
+			() => parseCliArgs(constraint, ["inter"]),
+			(error: unknown) => error instanceof CliArgsError,
+		);
+	});
+
+	test("rejects a flag missing its value", () => {
+		assert.throws(
+			() => parseCliArgs(constraint, ["--public-dir"]),
+			(error: unknown) => error instanceof CliArgsError,
+		);
 	});
 });
 
