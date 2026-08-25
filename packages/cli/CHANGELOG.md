@@ -1,5 +1,11 @@
 # @leturgero/cli
 
+## 0.3.1
+
+### Patch Changes
+
+- [#45](https://github.com/web-runes/leturgero/pull/45) [`e176326`](https://github.com/web-runes/leturgero/commit/e176326db50a03c6f5b263c9996c3f9472434f40) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Unknown flags, positional arguments and flags missing their value are now rejected with a readable message instead of being silently ignored or printing a stack trace
+
 ## 0.3.0
 
 ### Minor Changes
