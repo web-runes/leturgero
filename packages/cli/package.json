@@ -36,12 +36,12 @@
 	"homepage": "https://leturgero.web-runes.dev",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^25.9.5",
+		"@types/node": "^25.9.6",
 		"typescript": "7.0.2"
 	},
 	"dependencies": {
 		"@capsizecss/unpack": "^4.0.1",
-		"@clack/prompts": "^1.7.0",
+		"@clack/prompts": "^1.8.1",
 		"am-i-vibing": "^0.5.0",
 		"fuse.js": "^7.5.0",
 		"unifont": "~0.8.3"
