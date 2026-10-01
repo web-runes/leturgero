@@ -213,8 +213,8 @@ importers:
         specifier: ^7.5.0
         version: 7.5.0
       unifont:
-        specifier: ~0.8.3
-        version: 0.8.3
+        specifier: ~1.0.2
+        version: 1.0.2
     devDependencies:
       '@types/node':
         specifier: ^25.9.8
@@ -2119,8 +2119,8 @@ packages:
   unifont@0.7.5:
     resolution: {integrity: sha512-ULe/Cs+ZIsq+dcFofNkhqielCrUJnb5mr+Yc4EBM2VlL+6OZR6+cjtI2mT1bJvRBrVncqHAbLURxmPLcCXzWMg==}
 
-  unifont@0.8.3:
-    resolution: {integrity: sha512-+hGqF94yv3YVzQv8U5Mvbw4DoYJCiAvp/SURYEHdoM4c7LmpprWtR9Ev1BbHo/4nz7Mws6P6VHr8LjkfOHCPCg==}
+  unifont@1.0.2:
+    resolution: {integrity: sha512-3H8XdmdNX5DIOqJmne9O/rErVLYe1E5CBD+TDNIyUQUda9GBZvHaqlApixof8lHUkWtSTDWPP2tImD9cIyyXsA==}
 
   unist-util-find-after@5.0.0:
     resolution: {integrity: sha512-amQa0Ep2m6hE2g72AugUItjbuM8X8cGQnFoHk0pGfrFeT9GZhzN5SW8nRsiGKK7Aif4CrACPENkA6P/Lw6fHGQ==}
@@ -4309,7 +4309,7 @@ snapshots:
       ohash: 2.0.12
       undici: 8.10.2
 
-  unifont@0.8.3:
+  unifont@1.0.2:
     dependencies:
       css-tree: 3.2.1
       ohash: 2.0.12
