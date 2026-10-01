@@ -213,7 +213,7 @@ importers:
         specifier: ^7.5.0
         version: 7.5.0
       unifont:
-        specifier: ~1.0.2
+        specifier: ^1.0.2
         version: 1.0.2
     devDependencies:
       '@types/node':
